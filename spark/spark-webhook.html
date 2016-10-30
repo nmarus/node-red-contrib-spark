@@ -1,0 +1,315 @@
+<script type="text/x-red" data-template-name="Spark Webhook">
+  <div class="form-row">
+    <label for="node-input-profileConfig"><i class="fa fa-lock"></i> Profile</label>
+    <input type="text" id="node-input-profileConfig">
+    <div class="form-tips" id="node-input-profileConfig" style="margin-top: 10px;">
+      <div>Select an existing Spark Credential Profile or create a new one...</div>
+    </div>
+  </div>
+
+  <div class="form-row" id="node-input-resource-row">
+    <label for="node-input-resource"><i class="icon-tag"></i> Resource</label>
+    <select type="text" id="node-input-resource">
+      <option selected disabled value="" >Choose a Resource</option>
+    </select>
+    <div class="form-tips" id="node-input-resource" style="margin-top: 10px;">
+      <div>Select Spark Webhook Resource.</div>
+    </div>
+  </div>
+
+  <div class="form-row" id="node-input-event-row">
+    <label for="node-input-event"><i class="icon-tag"></i> Event</label>
+    <select type="text" id="node-input-event">
+      <option selected disabled value="" >Choose an Event</option>
+    </select>
+    <div class="form-tips" id="node-input-event" style="margin-top: 10px;">
+      <div>Select Spark Webhook Event.</div>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-host"><i class="icon-globe"></i> Host</label>
+    <input type="text" id="node-input-host" placeholder="http://myhost.com:3000">
+    <div class="form-tips" id="node-input-host" style="margin-top: 10px;">
+      <div>Enter the URL that this NODE-RED instance is eternally accessible at</div>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Optional name">
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="Spark Webhook">
+  <p>The Spark Webhook Node is triggered when a resource event is matched. When
+    the node is deployed, it automatically creates the associated Cisco Spark
+    Webhook. When the Node is removed, the Webhook reference is automatically
+    removed in the Spark API.
+  </p>
+
+  <!-- Footer -->
+  <p>For further details and examples, reference the
+    <a href="https://github.com/nmarus/node-red-contrib-spark/blob/master/README.md" target="_blank">README.md</a>
+    file in the github repository.
+  </p>
+</script>
+
+<script type="text/javascript">
+  // define the local url where the API defnition can be found
+  var _hookUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/webhook/cisco_spark_v1.json';
+
+  // define webhook definition object
+  var _hookObj = {};
+
+  // add prototype string function
+  String.prototype.toUpperCaseFirst = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+  };
+
+  // register the spark webhook node
+  RED.nodes.registerType('Spark Webhook', {
+    category: 'Cisco',
+    paletteLabel: 'Spark',
+    color: '#C0DEED',
+    defaults: {
+      profileConfig: {
+        type: 'Spark Authentication',
+        required: true
+      },
+      resource: {
+        value: '',
+        required: true
+      },
+      event: {
+        value: '',
+        required: true
+      },
+      host: {
+        value: '',
+        required: true,
+        validate:RED.validators.regex(/((https?):\/\/)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}([-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)/)
+      },
+      name: {
+        value: ''
+      }
+    },
+    inputs: 0,
+    outputs: 1,
+    icon: 'spark-node-red.png',
+    label: function() {
+
+      if(this.name) {
+        return this.name;
+      }
+
+      if(this.resource && this.event) {
+        this.name = this.resource.toUpperCaseFirst() + '.' + this.event.toUpperCaseFirst();
+        return this.name;
+      } else {
+        return 'Spark Webhook';
+      }
+    },
+    labelStyle: function() {
+      return this.name ? 'node_label_italic' : '';
+    },
+    oneditprepare: function() {
+
+      var form = this;
+
+      // update form field visibility
+      function updateVisibility() {
+        var selectedProfileConfig = $('#node-input-profileConfig').val();
+
+        if(selectedProfileConfig && selectedProfileConfig !== '_ADD_') {
+          $('#node-input-resource-row').show();
+          var selectedResource = $('#node-input-resource option:selected').val();
+
+          if(selectedResource && selectedResource !== '') {
+            $('#node-input-event-row').show();
+          } else {
+            $('#node-input-event-row').hide();
+          }
+        } else {
+          $('#node-input-resource-row').hide();
+          $('#node-input-event-row').hide();
+        }
+      }
+
+      // populate form
+      function populateForm(selectedResource, selectedEvent) {
+        updateResourceList(selectedResource);
+        updateResourceTip(selectedResource);
+        updateEventList(selectedResource, selectedEvent);
+        updateEventTip(selectedResource, selectedEvent);
+        updateVisibility();
+      }
+
+      // populate list
+      function populateList(jQuerySelector, selectedValue, availableValues, defaultText) {
+        if(jQuerySelector != undefined) {
+          jQuerySelector.empty();
+
+          var option = $('<option></option>')
+            .prop('disabled', true)
+            .attr('value', '')
+            .text(defaultText);
+
+          if(!selectedValue) {
+            option.prop('selected', true)
+          }
+
+          jQuerySelector.append(option);
+
+          // Add all the values
+          if(availableValues) {
+            for(var i = 0; i < availableValues.length; i++) {
+              var value = availableValues[i].value;
+              var name = availableValues[i].name;
+
+              var option = $('<option></option>')
+                .attr('value', value)
+                .text(name);
+
+              if(value === selectedValue) {
+                option.prop('selected', true);
+              } else {
+                option.prop('selected', false);
+              }
+
+              jQuerySelector.append(option);
+            }
+          }
+        }
+      }
+
+      // update resource list
+      function updateResourceList(selectedResource) {
+        var resources = Object.keys(_hookObj);
+        var resourceArray = [];
+
+        for( var i = 0; i < resources.length; i++) {
+          resourceArray.push({ value: resources[i], name: _hookObj[resources[i]].name});
+        }
+
+        populateList($('#node-input-resource'), selectedResource, resourceArray, 'Choose a Webhook Resource');
+      }
+
+      // update resource tip
+      function updateResourceTip(selectedResource) {
+        var tipText = '<div>Select Spark Webhook Resource.</div>';
+
+        if(selectedResource) {
+          var apiResource = _hookObj[selectedResource];
+
+          if(apiResource) {
+            var summary = apiResource.summary;
+
+            if(summary) {
+              tipText = '<div>' + summary + '</div>';
+            }
+          }
+        }
+
+        $('#node-input-resource.form-tips div').replaceWith(tipText);
+      }
+
+      // update event list
+      function updateEventList(selectedResource, selectedEvent) {
+        if(selectedResource && typeof _hookObj[selectedResource] !== 'undefined') {
+          var events = Object.keys(_hookObj[selectedResource].events);
+          var eventArray = [];
+
+          for( var i = 0; i < events.length; i++) {
+            eventArray.push({ value: events[i], name: _hookObj[selectedResource].events[events[i]].name });
+          }
+
+          populateList($('#node-input-event'), selectedEvent, eventArray, 'Choose a Event Trigger');
+        }
+      }
+
+      // update event tip
+      function updateEventTip(selectedResource, selectedEvent) {
+        var tipText = '<div>Select Spark Webhook Event.</div>';
+
+        if(selectedResource && selectedEvent) {
+          var apiEvent = _hookObj[selectedResource].events[selectedEvent];
+
+          if(apiEvent) {
+            var summary = apiEvent.summary;
+
+            if(summary) {
+              tipText = '<div>' + summary + '</div>';
+            }
+          }
+        }
+
+        $('#node-input-event.form-tips div').replaceWith(tipText);
+      }
+
+      // event: profile updated
+      $('#node-input-profileConfig').change(function() {
+        var selectedProfileConfig = $('#node-input-profileConfig option:selected').val();
+
+        if(selectedProfileConfig !== form.profileConfig) {
+          // reset
+          form.profileConfig = undefined;
+          $('#node-input-name').val('');
+        }
+
+        updateVisibility();
+      });
+
+      // event: resource updated
+      $('#node-input-resource').change(function() {
+        var selectedResource = $('#node-input-resource option:selected').val();
+
+        if(selectedResource !== form.resource) {
+          // update event
+          updateEventList(selectedResource);
+          updateEventTip();
+
+          // update resource tip
+          updateResourceTip(selectedResource);
+
+          // reset
+          form.resource = undefined;
+          $('#node-input-name').val('');
+        }
+
+        updateVisibility();
+      });
+
+      // event: event updated
+      $('#node-input-event').change(function() {
+        var selectedResource = $('#node-input-resource option:selected').val();
+        var selectedEvent = $('#node-input-event option:selected').val();
+
+        if(selectedEvent !== form.event) {
+          // update event tip
+          if(selectedResource && selectedEvent) {
+            updateEventTip(selectedResource, selectedEvent);
+          }
+
+          // reset
+          form.event = undefined;
+          $('#node-input-name').val('');
+        }
+
+        updateVisibility();
+      });
+
+      // init form
+      populateForm(form.resource, form.event);
+
+      // init node
+      $.getJSON(_hookUrl, function(data) {
+        _hookObj = data;
+
+        // update form
+        populateForm(form.resource, form.event);
+      });
+
+    }
+  });
+</script>

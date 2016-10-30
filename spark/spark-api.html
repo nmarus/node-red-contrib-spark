@@ -1,0 +1,380 @@
+<script src='/swagger-client-web.js' type='text/javascript'></script>
+
+<script type="text/x-red" data-template-name="Spark API">
+  <div class="form-row">
+    <label for="node-input-profileConfig"><i class="fa fa-lock"></i> Profile</label>
+    <input type="text" id="node-input-profileConfig">
+    <div class="form-tips" id="node-input-profileConfig" style="margin-top: 10px;">
+      <div>Select an existing Spark Credential Profile or create a new one...</div>
+    </div>
+  </div>
+
+  <div class="form-row" id="node-input-resource-row">
+    <label for="node-input-resource"><i class="icon-tag"></i> Resource</label>
+    <select type="text" id="node-input-resource">
+      <option selected disabled value="" >Choose a Resource</option>
+    </select>
+    <div class="form-tips" id="node-input-resource" style="margin-top: 10px;">
+      <div>Select one of the resources offered by the Spark API.</div>
+    </div>
+  </div>
+
+  <div class="form-row" id="node-input-method-row">
+    <label for="node-input-method"><i class="icon-tag"></i> Method</label>
+    <select type="text" id="node-input-method">
+      <option selected disabled value="">Choose a Method</option>
+    </select>
+    <div class="form-tips" id="node-input-method" style="margin-top: 10px;">
+      <div>Select one of the methods offered by the Spark API.</div>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Optional name">
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="Spark API">
+  <p>The Spark API Node sends REST queries via messages received by the input
+    connector in the <code>msg.payload</code> object. Results of the API call
+    are provided at the output in the <code>msg.payload</code> object.
+  </p>
+
+  <!-- Input -->
+  <p><strong>Input</strong></p>
+  <p>The Spark API request is passed as a JSON object in
+    <code>msg.payload</code>. The <code>msg.payload</code> object can be an
+    empty object or contain optional path, query-string, or body variables
+    provided using <code>"key": "value"</code> object parameters. Depending on
+    the particular API method, the <code>"key": "value"</code> properties are
+    defined in either the <code>msg.payload</code> object or the
+    <code>msg.payload.body</code> object.
+  </p>
+  <p>Reference <a href="https://developer.ciscospark.com" target="_blank">
+    developer.ciscospark.com</a> for further details.
+  </p>
+
+  <!-- Output -->
+  <p><strong>Output</strong></p>
+  <p>By convention the output from the Spark API call will have a
+    <code>msg.payload</code> property containing the results of the API call in
+    JSON format. The format of this JSON object will be the same as documented
+    at <a href="https://developer.ciscospark.com" target="_blank">developer.ciscospark.com</a>
+    for the responses from the API call.
+  </p>
+  <p>Additionally the following are defined as part of the <code>msg</code>
+    object:
+    <ul>
+      <li><code>msg.status</code> - http return code</li>
+      <li><code>msg.error</code> - error object (or null if successful)</li>
+      <ul>
+        <li><code>msg.error.message</code> - error message</li>
+        <li><code>msg.error.description</code> - error description</li>
+        <li><code>msg.error.trackingId</code> - tracking id</li>
+      </ul>
+      <li><code>msg.headers</code> - response headers object</li>
+      <li><code>msg._msgid</code> - unique identifier</li>
+    </ul>
+  </p>
+  <hr />
+
+  <!-- Footer -->
+  <p>For further details and examples, reference the
+    <a href="https://github.com/nmarus/node-red-contrib-spark/blob/master/README.md" target="_blank">README.md</a>
+    file in the github repository.
+  </p>
+</script>
+
+<script type="text/javascript">
+  // define the local url where the API defnition can be found
+  var _apiUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/api/cisco_spark_v1.json';
+
+  // define api definition object
+  var _apiObj = {};
+
+  // register the spark api node
+  RED.nodes.registerType('Spark API', {
+    category: 'Cisco',
+    paletteLabel: 'Spark',
+    color: '#C0DEED',
+    defaults: {
+      profileConfig: {
+        type: 'Spark Authentication',
+        required: true
+      },
+      apiUrl: {
+        value: _apiUrl
+      },
+      resource: {
+        value: '',
+        required: true
+      },
+      method: {
+        value: '',
+        required: true
+      },
+      name: {
+        value: ''
+      }
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: 'spark-node-red.png',
+    label: function() {
+      if(this.name) {
+        return this.name;
+      }
+
+      if(this.resource && this.method) {
+        this.name = this.resource + '.' + this.method;
+        return this.name;
+      } else {
+        return 'Spark API Request';
+      }
+    },
+    labelStyle: function() {
+      return this.name ? 'node_label_italic' : '';
+    },
+    oneditprepare: function() {
+
+      var form = this;
+
+      // create api client
+      function createClient() {
+        return new SwaggerClient({
+          url: _apiUrl,
+          usePromise: true
+        })
+
+        .then(function(client) {
+          RED.notify('Retrieved Spark resource and method definitions...', 'success')
+          return Promise.resolve(client);
+        })
+
+        .catch(function(err) {
+          RED.notify('<strong>Error:</strong> Unable to load Spark Definitions', 'err');
+        });
+      }
+
+      // get or create api client
+      function getOrCreateClient() {
+        // if client exist, return client
+        if(form.client) {
+          return form.client;
+        }
+
+        // else client does not exist, create client
+        else {
+          form.client = createClient();
+          return form.client;
+        }
+      }
+
+      // update form field visibility
+      function updateVisibility() {
+        var selectedProfileConfig = $('#node-input-profileConfig').val();
+
+        if(selectedProfileConfig && selectedProfileConfig !== '_ADD_') {
+          $('#node-input-resource-row').show();
+          var selectedResource = $('#node-input-resource option:selected').val();
+
+          if(selectedResource && selectedResource !== '') {
+            $('#node-input-method-row').show();
+          } else {
+            $('#node-input-method-row').hide();
+          }
+        } else {
+          $('#node-input-resource-row').hide();
+          $('#node-input-method-row').hide();
+        }
+      }
+
+      // populate form
+      function populateForm(selectedResource, selectedMethod) {
+        updateResourceList(selectedResource);
+        updateResourceTip(selectedResource);
+        updateMethodList(selectedResource, selectedMethod);
+        updateMethodTip(selectedResource, selectedMethod);
+        updateVisibility();
+      }
+
+      // populate list
+      function populateList(jQuerySelector, selectedValue, availableValues, defaultText) {
+        if(jQuerySelector != undefined) {
+          jQuerySelector.empty();
+
+          var option = $('<option></option>')
+            .prop('disabled', true)
+            .attr('value', '')
+            .text(defaultText);
+
+          if(!selectedValue) {
+            option.prop('selected', true)
+          }
+
+          jQuerySelector.append(option);
+
+          // Add all the values
+          if(availableValues) {
+            for(var i = 0; i < availableValues.length; i++) {
+              var value = availableValues[i];
+
+              var option = $('<option></option>')
+                .attr('value', value)
+                .text(value);
+
+              if(value === selectedValue) {
+                option.prop('selected', true);
+              } else {
+                option.prop('selected', false);
+              }
+
+              jQuerySelector.append(option);
+            }
+          }
+        }
+      }
+
+      // update list of resources based on the api defintion
+      function updateResourceList(selectedResource) {
+        var resourceArray = [];
+
+        if(form.client && form.client.apisArray) {
+          for( var i = 0; i < form.client.apisArray.length; i++) {
+            resourceArray.push(form.client.apisArray[i].name);
+          }
+
+          populateList($('#node-input-resource'), selectedResource, resourceArray, 'Choose a API Resource');
+        }
+      }
+
+      // update the inline text tip for the seletected resource based on swaggger definition
+      function updateResourceTip(selectedResource) {
+        var tipText = '<div>Select one of the resources offered by the Spark API.</div>';
+
+        if(form.client && selectedResource) {
+          var apiResource = form.client.apis[selectedResource];
+
+          if(apiResource) {
+            var description = apiResource.description;
+
+            if(description) {
+              tipText = '<div>' + description + '</div>';
+            }
+          }
+        }
+
+        $('#node-input-resource.form-tips div').replaceWith(tipText);
+      }
+
+      // update list of methods based on the api defintion
+      function updateMethodList(selectedResource, selectedMethod) {
+        if(form.client && form.client.apisArray && selectedResource) {
+          var apiResource = form.client.apis[selectedResource];
+
+          if(apiResource) {
+            var methodArray = Object.getOwnPropertyNames(apiResource.operations);
+            populateList($('#node-input-method'), selectedMethod, methodArray, 'Choose a API Method');
+          }
+        }
+      }
+
+      // update the inline text tip for the seletected resource based on swaggger definition
+      function updateMethodTip(selectedResource, selectedMethod) {
+        var tipText = '<div>Select one of the methods offered by the Spark API.</div>';
+
+        if(form.client && selectedResource && selectedMethod) {
+          var apiResource = form.client.apis[selectedResource];
+
+          if(apiResource) {
+            var apiMethod = apiResource.operations[selectedMethod];
+
+            if(apiMethod) {
+              var summary = apiMethod.summary;
+
+              if(summary) {
+                tipText = '<div>' + summary + '</div>';
+              }
+            }
+          }
+        }
+
+        $('#node-input-method.form-tips div').replaceWith(tipText);
+      }
+
+      // event: profile updated
+      $('#node-input-profileConfig').change(function() {
+        var selectedProfileConfig = $('#node-input-profileConfig option:selected').val();
+
+        if(selectedProfileConfig !== form.profileConfig) {
+          // reset
+          form.profileConfig = undefined;
+          $('#node-input-name').val('');
+        }
+
+        updateVisibility();
+      });
+
+      // event: resource updated
+      $('#node-input-resource').change(function() {
+        var selectedResource = $('#node-input-resource option:selected').val();
+
+        if(selectedResource !== form.resource) {
+          // update method
+          updateMethodList(selectedResource);
+          updateMethodTip();
+
+          // update resource tip
+          updateResourceTip(selectedResource);
+
+          // reset
+          form.resource = undefined;
+          $('#node-input-name').val('');
+        }
+
+        updateVisibility();
+      });
+
+      // event: method updated
+      $('#node-input-method').change(function() {
+        var selectedResource = $('#node-input-resource option:selected').val();
+        var selectedMethod = $('#node-input-method option:selected').val();
+
+        if(selectedMethod != form.method) {
+
+          // update method tip
+          if(selectedResource && selectedMethod) {
+            updateMethodTip(selectedResource, selectedMethod);
+          }
+
+          // reset
+          form.method = undefined;
+          $('#node-input-name').val('');
+        }
+
+        updateVisibility();
+      });
+
+      // init form
+      populateForm(form.resource, form.method);
+
+      // init node
+      $.getJSON(_apiUrl, function(data) {
+        _apiObj = data;
+
+        // get client and update form
+        createClient()
+          .then(function(client) {
+            if(client) {
+              form.client = client;
+            }
+
+            // update form
+            populateForm(form.resource, form.method);
+          });
+      });
+
+    }
+  });
+</script>

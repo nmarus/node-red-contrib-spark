@@ -1,0 +1,3 @@
+[submodule "cisco-spark-swagger"]
+  path = spark/api
+  url = https://github.com/nmarus/cisco-spark-swagger.git

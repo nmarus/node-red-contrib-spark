@@ -1,0 +1,38 @@
+<script type="text/x-red" data-template-name="Spark Authentication">
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="fa fa-tag"></i> Profile Name</label>
+    <input type="text" id="node-config-input-name" placeholder="Spark">
+  </div>
+
+  <div class="form-row" id="node-config-input-token-row">
+    <label id="node-config-input-token-label" for="node-config-input-token"><i class="fa fa-lock"></i> Bearer Token</label>
+    <input type="text" id="node-config-input-token" placeholder="Spark Bearer Token">
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="Spark Authentication">
+  <p>Cisco Spark API Configuration.</p>
+</script>
+
+<script type="text/javascript">
+  // register the spark config node
+  RED.nodes.registerType('Spark Authentication', {
+    category: 'config',
+    defaults: {
+      name: {
+        type: 'text',
+        value: '',
+        required: true
+      }
+    },
+    credentials: {
+      token: {
+        type: 'text',
+        required: true
+      }
+    },
+    label: function() {
+      return this.name ? this.name : 'Spark Authentication';
+    }
+  });
+</script>

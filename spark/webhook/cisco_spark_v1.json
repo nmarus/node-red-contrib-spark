@@ -1,0 +1,48 @@
+{
+    "messages": {
+        "name": "Messages",
+        "summary": "Triggers that apply to Messages.",
+        "events": {
+            "created": {
+                "name": "Created",
+                "summary": "Triggered when a new Message is created."
+            },
+            "deleted": {
+                "name": "Deleted",
+                "summary": "Triggered when an existing Message is deleted."
+            }
+        }
+    },
+    "memberships": {
+        "name": "Memberships",
+        "summary": "Triggers that apply to Room Memeberships.",
+        "events": {
+            "created": {
+                "name": "Created",
+                "summary": "Triggered when a new Room Membership is created."
+            },
+            "updated": {
+                "name": "Updated",
+                "summary": "Triggered when an existing Room Membership is updated."
+            },
+            "deleted": {
+                "name": "Deleted",
+                "summary": "Triggered when an existing Room Membership is deleted."
+            }
+        }
+    },
+    "rooms": {
+        "name": "Rooms",
+        "summary": "Triggers that apply to Rooms.",
+        "events": {
+            "created": {
+                "name": "Created",
+                "summary": "Triggered when a new Room is created."
+            },
+            "updated": {
+                "name": "Updated",
+                "summary": "Triggered when an existing Room is updated."
+            }
+        }
+    }
+}
