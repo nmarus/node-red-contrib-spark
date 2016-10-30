@@ -4,7 +4,7 @@
   "description": "A collection of NODE-RED nodes able to invoke Cisco Spark APIs and Webhooks",
   "dependencies": {
     "body-parser": "1.15.2",
-    "lodash": "^4.16.4",
+    "lodash": "4.16.4",
     "request": "2.76.0",
     "swagger-client": "2.1.23"
   },
