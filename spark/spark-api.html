@@ -93,6 +93,41 @@
   // define api definition object
   var _apiObj = {};
 
+  // swagger client
+  var _client = null;
+
+  // create swagger client
+  function createClient() {
+    return new SwaggerClient({
+      url: _apiUrl,
+      usePromise: true
+    })
+    .then(function(client) {
+      // RED.notify('Retrieved Spark resource and method definitions...', 'success');
+      return Promise.resolve(client);
+    })
+    .catch(function(err) {
+      RED.notify('<strong>Error:</strong> Unable to load Spark definitions', 'err');
+    });
+  }
+
+  // init _apiObj
+  if(Object.keys(_apiObj).length === 0) {
+    $.getJSON(_apiUrl, function(data) {
+      _apiObj = data;
+    });
+  }
+
+  // init client
+  if(!_client) {
+    createClient()
+      .then(function(client) {
+        if(client) {
+          _client = client;
+        }
+      });
+  }
+
   // register the spark api node
   RED.nodes.registerType('Spark API', {
     category: 'cisco_spark',
@@ -139,37 +174,6 @@
     oneditprepare: function() {
 
       var form = this;
-
-      // create api client
-      function createClient() {
-        return new SwaggerClient({
-          url: _apiUrl,
-          usePromise: true
-        })
-
-        .then(function(client) {
-          RED.notify('Retrieved Spark resource and method definitions...', 'success')
-          return Promise.resolve(client);
-        })
-
-        .catch(function(err) {
-          RED.notify('<strong>Error:</strong> Unable to load Spark Definitions', 'err');
-        });
-      }
-
-      // get or create api client
-      function getOrCreateClient() {
-        // if client exist, return client
-        if(form.client) {
-          return form.client;
-        }
-
-        // else client does not exist, create client
-        else {
-          form.client = createClient();
-          return form.client;
-        }
-      }
 
       // update form field visibility
       function updateVisibility() {
@@ -357,23 +361,21 @@
       });
 
       // init form
-      populateForm(form.resource, form.method);
-
-      // init node
-      $.getJSON(_apiUrl, function(data) {
-        _apiObj = data;
-
-        // get client and update form
-        createClient()
-          .then(function(client) {
-            if(client) {
-              form.client = client;
-            }
-
-            // update form
+      if(_client) {
+        form.client = _client;
+        populateForm(form.resource, form.method);
+      } else {
+        // wait for client
+        var clientWait = setInterval(function(){
+          if(_client) {
+            form.client = _client;
             populateForm(form.resource, form.method);
-          });
-      });
+
+            // stop inerval
+            clearInterval(clientWait);
+          }
+        }, 5000);
+      }
 
     }
   });

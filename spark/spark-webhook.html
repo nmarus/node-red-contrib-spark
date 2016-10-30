@@ -31,7 +31,7 @@
     <label for="node-input-host"><i class="icon-globe"></i> Host</label>
     <input type="text" id="node-input-host" placeholder="http://myhost.com:3000">
     <div class="form-tips" id="node-input-host" style="margin-top: 10px;">
-      <div>Enter the URL that this NODE-RED instance is eternally accessible at</div>
+      <div>Enter the URL that this NODE-RED instance is eternally accessible at.</div>
     </div>
   </div>
 
@@ -61,6 +61,13 @@
 
   // define webhook definition object
   var _hookObj = {};
+
+  // init _hookObj
+  if(Object.keys(_hookObj).length === 0) {
+    $.getJSON(_hookUrl, function(data) {
+      _hookObj = data;
+    });
+  }
 
   // add prototype string function
   String.prototype.toUpperCaseFirst = function() {
@@ -183,6 +190,27 @@
         }
       }
 
+      // update profileConfig
+      function updateProfileConfig() {
+        var selectedProfileConfig = form.profileConfig;
+        var selectedResource = form.resource;
+        var selectedEvent = form.event;
+
+        var enabledTip = '<div>Select an existing Spark Credential Profile or create a new one...</div>';
+        var disabledTip = '<div>Remove existing node to change Spark Credential Profile...</div>';
+
+        // if(selectedProfileConfig !== '_ALL_') {
+        if(selectedProfileConfig) {
+          if(selectedResource && selectedEvent) {
+            $('#node-input-profileConfig').prop('disabled', true);
+            $('#node-input-profileConfig.form-tips div').replaceWith(disabledTip);
+          } else {
+            $('#node-input-profileConfig').prop('disabled', false);
+            $('#node-input-profileConfig.form-tips div').replaceWith(enabledTip);
+          }
+        }
+      }
+
       // update resource list
       function updateResourceList(selectedResource) {
         var resources = Object.keys(_hookObj);
@@ -247,19 +275,6 @@
         $('#node-input-event.form-tips div').replaceWith(tipText);
       }
 
-      // event: profile updated
-      $('#node-input-profileConfig').change(function() {
-        var selectedProfileConfig = $('#node-input-profileConfig option:selected').val();
-
-        if(selectedProfileConfig !== form.profileConfig) {
-          // reset
-          form.profileConfig = undefined;
-          $('#node-input-name').val('');
-        }
-
-        updateVisibility();
-      });
-
       // event: resource updated
       $('#node-input-resource').change(function() {
         var selectedResource = $('#node-input-resource option:selected').val();
@@ -302,13 +317,8 @@
       // init form
       populateForm(form.resource, form.event);
 
-      // init node
-      $.getJSON(_hookUrl, function(data) {
-        _hookObj = data;
-
-        // update form
-        populateForm(form.resource, form.event);
-      });
+      // update profile config
+      updateProfileConfig();
 
     }
   });
