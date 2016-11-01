@@ -20,22 +20,38 @@
   </div>
 
   <div class="form-row">
+    <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
+    <input type="text" id="node-input-topic">
+    <div class="form-tips" id="node-input-topic" style="margin-top: 10px;">
+      <div>By default, the value of "property" is used as for
+      <code>msg.topic</code>. This can be overridden here if needed.</div>
+    </div>
+  </div>
+
+  <div class="form-row">
     <label for="node-input-name"><i class="icon-tag"></i> Name</label>
     <input type="text" id="node-input-name" placeholder="Optional name">
   </div>
 </script>
 
 <script type="text/x-red" data-help-name="Spark Payload Parser">
-  <p>The Spark Parse Node allows parsing of messages recieved from either the
+  <p>The Spark Parse Node allows parsing of messages received from either the
     Webhook or API Node. The parsed value is placed in the
-    <code>msg.payload</code> of the first output. The orginal
-    <code>msg.payload</code> is passed through on the second output.
+    <code>msg.payload</code> of the first output. The parser property value
+    string is passed in <code>msg.topic</code> for use with supporting functions
+    like <code>join</code>. The original <code>msg.payload</code> is passed
+    through to the second output.
   </p>
 
-  <p>If the input recieves an array, each element of the array is parsed
-    individually. The results can be returned as either a single array in the
-    <code>msg.payload</code> of the outut or as multiple messages with each
-    message being sent sequentially with its own <code>msg.payload</code>.
+  <p>If the input receives an array, each element of the array is parsed
+  individually. The results can be returned as either a single array or as
+  multiple messages in the output. This option is configured within the Node
+  itself. If setup to send a single array, only a single message is sent with
+  the <code>msg.payload</code> containing the array and a
+  <code>msg.payload</code> containing the parser property. If setup to send as
+  multiple messages, the Node will output individual messages sequentially with
+  each element in that message including a <code>msg.payload</code> and
+  <code>msg.topic</code> property.
   </p>
 
   <!-- Footer -->
@@ -57,7 +73,10 @@
         required: true
       },
       multi: {
-        value: '',
+        value: ''
+      },
+      topic: {
+        value: ''
       },
       name: {
         value: ''

@@ -8,16 +8,17 @@ module.exports = function(RED) {
     var node = this;
 
     node.parser = n.parser;
+    node.topic = n.topic;
     node.multi = n.multi === 'true' ? true : false;
 
-    function processPayload(pl, f) {
+    function processPayload(pl, k) {
       // validate payload is object
       if(typeof pl === 'object') {
 
         // if webhook
         if(pl.hasOwnProperty('data')) {
-          if(pl.data.hasOwnProperty(f)) {
-            return pl.data[f];
+          if(pl.data.hasOwnProperty(k)) {
+            return pl.data[k];
           } else {
             return null;
           }
@@ -25,8 +26,8 @@ module.exports = function(RED) {
 
         // else api
         else {
-          if(pl.hasOwnProperty(f)) {
-            return pl[f];
+          if(pl.hasOwnProperty(k)) {
+            return pl[k];
           } else {
             return null;
           }
@@ -35,24 +36,36 @@ module.exports = function(RED) {
       }
     }
 
-    function processPayloadArray(plArr, f) {
-      return _.map(plArr, function(pl) {
-        var payload = processPayload(pl, f);
+    function processPayloadArray(plArr, k) {
+      var flatArr = _.map(plArr, function(pl) {
+        // get payload
+        var payload = processPayload(pl, k);
 
         if(payload) {
           return payload;
         }
       });
+
+      // determine topic
+      var topic = typeof node.topic === 'string' && node.topic.length > 0 ? node.topic : k;
+
+      return { "payload": flatArr, "topic": topic };
     }
 
-    function processPayloadMulti(plArr, f) {
-      return _.map(plArr, function(pl) {
-        var payload = processPayload(pl, f);
+    function processPayloadMulti(plArr, k) {
+      var collection =  _.map(plArr, function(pl) {
+        // define payload
+        var payload = processPayload(pl, k);
+
+        // determine topic
+        var topic = typeof node.topic === 'string' && node.topic.length > 0 ? node.topic : k;
 
         if(payload) {
-          return { "payload": payload };
+          return { "payload": payload, "topic": topic };
         }
       });
+
+      return collection;
     }
 
     // input event
@@ -69,7 +82,7 @@ module.exports = function(RED) {
             if(node.multi) {
               msgParser = processPayloadMulti(payload, node.parser);
             } else {
-              msgParser.payload = processPayloadArray(payload, node.parser);
+              msgParser = processPayloadArray(payload, node.parser);
             }
           }
           else {
@@ -83,6 +96,7 @@ module.exports = function(RED) {
           var newPayload = processPayload(payload, node.parser);
           if(newPayload) {
             msgParser.payload = newPayload;
+            msgParser.topic = typeof node.topic === 'string' && node.topic.length > 0 ? node.topic : node.parser;
           } else {
             msgParser = null;
             node.warn('unmatched parser');

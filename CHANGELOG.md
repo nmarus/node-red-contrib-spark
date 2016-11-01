@@ -1,3 +1,7 @@
+#### 1.0.4: Maintenance Release
+
+  - added msg.topic to parser node output that contains the parser
+
 #### 1.0.3: Maintenance Release
 
   - updated documentation and corrected typos
