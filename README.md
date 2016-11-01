@@ -1,6 +1,6 @@
 # node-red-contrib-spark
 
-![](/images/flow01.jpg)
+![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/flow01.jpg)
 
 ### Install
 
