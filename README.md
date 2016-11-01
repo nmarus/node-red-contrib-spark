@@ -1,10 +1,34 @@
 # node-red-contrib-spark
 
+[Node-RED](http://nodered.org) Nodes to integrate with the [Cisco Spark API](https://developer.ciscospark.com).
+
 ![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/flow01.jpg)
+
+### Nodes
+
+* **api** - This Node receives queries on the input that are then sent to the Spark API. The results are provided at the output.
+* **webhook** - This Node creates, removes, and manages the Webhook features of the Spark API. Once deployed, and subsequently triggered, the contents of the notification will be sent to the output of this Node.
+* **parser** - This is a utility Node that accepts input from the output of either the Api or Webhook Node. This acts similarly to the `map` functionality provided in many programming languages and additionally provides options when dealing with input that is in the form of a collection (array of objects).
+* **auth** - This is a Config Node that holds the credential Bearer Token for the Spark API. Once initially defined, either under the Api or Webhook Node, it will be available to select on all other Api and Webhook Nodes that are created. You can define multiple Auth profiles so as to work with different Spark Accounts or Bots within the same flow.
 
 ### Install
 
-**Via Source:**
+The simplest installation method is done via Node-RED itself. In the "Manage Palette" menu dropdown, search for this module by name. Alternate methods are outlined below.
+
+**Via the node-red-admin CLI tool:**
+
+```bash
+# install node-red-admin if needed
+npm install -g node-red-admin
+
+# authenticate if your Node-RED administration has been secured
+node-red-admin login
+
+# install the module
+node-red-admin install node-red-contrib-spark
+```
+
+**Via source:**
 ```bash
 # clone repo
 git clone https://github.com/nmarus/node-red-contrib-spark
@@ -18,7 +42,7 @@ git submodule update
 npm install /path/to/node-red-contrib-spark
 ```
 
-**Via NPM Repository:**
+**Via NPM repository:**
 ```bash
 # from your node-red installation directory
 npm install node-red-contrib-spark
@@ -26,11 +50,13 @@ npm install node-red-contrib-spark
 
 ## API Node
 
-The Spark API Node sends REST queries via messages received by the input connector in the `msg.payload object`. Results of the API call are provided at the output in the `msg.payload` object.
+The Spark API Node sends REST queries via messages received by the input connector in the `msg.payload` object. Results of the API call are provided at the output in the `msg.payload` object.
+
+![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/api-node.jpg)
 
 #### Module Input
 
-The Spark API request is passed as a JSON object in `msg.payload`. The `msg.payload` object can be an empty object or contain optional path, query-string, or body variables provided using `"key": "value"` object parameters. Depending on the particular API method, the `"key": "value"` properties are defined in either the `msg.payload` object or the `msg.payload.body` object.
+The Spark API request is passed as a JSON object in `msg.payload`. The `msg.payload` object can be an empty object `{}` or contain optional path, query-string, or body variables provided using `"key": "value"` object parameters. Depending on the particular API method, the `"key": "value"` properties are defined in either the `msg.payload` object or the `msg.payload.body` object.
 
 #### Module Output
 
@@ -107,11 +133,19 @@ The following object would be sent in the `msg.payload` input to a Spark API Nod
 }
 ```
 
+#### Configuration Options
+
+* **Profile** - The Spark credential profile to use with this Node.
+* **Resource** - The Spark resources for the API action.
+* **Method** - The specific method available to the selected Spark resource.
+
 ## Webhook Node
 
-The Spark Webhook Node is triggered when a resource event is matched. When the node is deployed, it automatically creates the associated Cisco Spark Webhook. When the Node is removed, the Webhook reference is automatically removed in the Spark API.
+The Spark Webhook Node is triggered when a resource event is matched. When the Node is deployed, it automatically creates the associated Cisco Spark Webhook. When the Node is removed, the Webhook reference is automatically removed in the Spark API.
 
-**Example Output**
+![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/webhook-node.jpg)
+
+**Example Output : `msg.payload`**
 
 ```json
 {
@@ -133,9 +167,52 @@ The Spark Webhook Node is triggered when a resource event is matched. When the n
 }
 ```
 
+#### Configuration Options
+
+* **Profile** - The Spark credential profile to use with this Node.
+* **Resource** - The Spark resource to bind a Webhook to.
+* **Event** - The specific event of the resource selected.
+* **Host** - The base URL that is used to build the Webhook in the Spark API. This should be reachable from the internet and follow the format of `http(s)://domain.tld:<port>`. The Webhook Node will dynamicly publish webroutes under this URL as `/spark<node-uuid>`. *Note that the Webhook is automatically created in the Spark API after deploying and automatically removed if the Node is deleted and the flow re-deployed*
+
+## Parser Node
+
+The Spark Parse Node allows parsing of messages received from either the Webhook or API Node. The parsed value is placed in the `msg.payload` of the first output. The original `msg.payload` is passed through to the second output.
+
+If the input receives an array, each element of the array is parsed individually. The results can be returned as either a single array  or as multiple messages in the output. This option is configured within the Node itself. If setup to send a single array, only a single message is sent with the `msg.payload` containing the array. If setup to send as multiple messages, the Node will output individual messages sequentially with each element in that message `msg.payload`.
+
+![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/parser-node.jpg)
+
+**Example Output (as Array) : `msg.payload`**
+
+```json
+[ "Test Room 1", "Test Room 2", "Test Room 3" ]
+```
+
+**Example Output (Individual) : `msg.payload`**
+
+```json
+"Test Room 1"
+```
+
+```json
+"Test Room 2"
+```
+
+```json
+"Test Room 3"
+```
+
+#### Configuration Options
+
+* **Property** - The object property to parse from the input.
+* **Output** - The selector on how to handle array input. The options are:
+    * **Individual Messages** - Sends each element property of the input array (collection) as a separate message.
+    * **Single Message as an Array** - Sends each element property of the input array as an array of strings.
+
+
 ## License
-MIT License
-Copyright (c) 2016 Nicholas Marus <nmarus@gmail.com>
+
+MIT License Copyright (c) 2016 Nicholas Marus
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

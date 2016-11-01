@@ -1,0 +1,99 @@
+<script type="text/x-red" data-template-name="Spark Payload Parser">
+  <div class="form-row" id="node-input-parser-row">
+    <label for="node-input-parser"><i class="icon-tag"></i> Property</label>
+      <input type="text" id="node-input-parser" placeholder="roomId">
+    <div class="form-tips" id="node-input-parser" style="margin-top: 10px;">
+      <div>Enter a property to parse from the output of a api or webhook node.</div>
+    </div>
+  </div>
+
+  <div class="form-row" id="node-input-multi-row">
+    <label for="node-input-multi"><i class="icon-tag"></i> Output</label>
+      <select type="text" id="node-input-multi">
+        <option value="false">Single message as an Array</option>
+        <option value="true">Individual messages</option>
+      </select>
+    <div class="form-tips" id="node-input-multi" style="margin-top: 10px;">
+      <div>Select if incoming Array data is parsed into a single message, or
+      into multiple indivdual messages.</div>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Optional name">
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="Spark Payload Parser">
+  <p>The Spark Parse Node allows parsing of messages recieved from either the
+    Webhook or API Node. The parsed value is placed in the
+    <code>msg.payload</code> of the first output. The orginal
+    <code>msg.payload</code> is passed through on the second output.
+  </p>
+
+  <p>If the input recieves an array, each element of the array is parsed
+    individually. The results can be returned as either a single array in the
+    <code>msg.payload</code> of the outut or as multiple messages with each
+    message being sent sequentially with its own <code>msg.payload</code>.
+  </p>
+
+  <!-- Footer -->
+  <p>For further details and examples, reference the
+    <a href="https://github.com/nmarus/node-red-contrib-spark/blob/master/README.md" target="_blank">README.md</a>
+    file in the github repository.
+  </p>
+</script>
+
+<script type="text/javascript">
+  // register the spark api node
+  RED.nodes.registerType('Spark Payload Parser', {
+    category: 'cisco_spark',
+    paletteLabel: 'parser',
+    color: '#C0DEED',
+    defaults: {
+      parser: {
+        value: '',
+        required: true
+      },
+      multi: {
+        value: '',
+      },
+      name: {
+        value: ''
+      }
+    },
+    inputs: 1,
+    outputs: 2,
+    icon: 'spark-node-red.png',
+    label: function() {
+      if(this.name) {
+        return this.name;
+      }
+
+      if(this.parser) {
+        this.name = 'parser → ' + this.parser;
+        return this.name;
+      } else {
+        return 'Spark Payload Parser';
+      }
+    },
+    labelStyle: function() {
+      return this.name ? 'node_label_italic' : '';
+    },
+    oneditprepare: function() {
+
+      var form = this;
+
+      // event: resource updated
+      $('#node-input-parser').keyup(function() {
+        $('#node-input-name').val('');
+      });
+
+      // set default multi
+      if($('#node-input-parser').val() == '') {
+        $('#node-input-multi').val('false');
+      }
+    }
+  });
+</script>
