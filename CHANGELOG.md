@@ -1,3 +1,8 @@
+#### 1.0.3: Maintenance Release
+
+  - updated documentation and corrected typos
+  - added parser node
+
 #### 1.0.2: Maintenance Release
 
   - reduced file sizes
