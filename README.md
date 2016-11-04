@@ -192,8 +192,6 @@ If the parser input receives an array, each element of the array is parsed indiv
 
 ![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/parser-node.jpg)
 
-```
-
 **Example Output (Individual) : `msg.payload`**
 
 ```json
@@ -214,7 +212,7 @@ If the parser input receives an array, each element of the array is parsed indiv
 * **Output** - The selector on how to handle array input. The options are:
     * **the individual property value** - Outputs the original value of the poperty without modifying data type.
     * **a key/value object** - Outputs the original value of the property placed into an object with the object key being the parser value, or optionally the topic if specified.
-* **Topic** - By default, the value of "property" is used as msg.topic. This can be overridden here if needed.
+* **Topic** - By default, the value of "parse" is used as msg.topic. This can be overridden here if needed.
 
 ## License
 
