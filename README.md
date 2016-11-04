@@ -176,16 +176,22 @@ The Spark Webhook Node is triggered when a resource event is matched. When the N
 
 ## Parser Node
 
-The Spark Parse Node allows parsing of messages received from either the Webhook or API Node. The parsed value is placed in the `msg.payload` of the first output. The parser property value string is passed in `msg.topic` for use with supporting functions like `join`. The original `msg.payload` is passed through to the second output.
+The Spark Parse Node allows parsing of messages received from either the Webhook or API Node. The parsed value is placed in the `msg.payload` of the first output. The value of the "parse" field is delivered in `msg.topic` for use with supporting functions like `join`. The original `msg.payload` is passed through to the second output.
 
-If the input receives an array, each element of the array is parsed individually. The results can be returned as either a single array or as multiple messages in the output. This option is configured within the Node itself. If setup to send a single array, only a single message is sent with the `msg.payload` containing the array. If setup to send as multiple messages, the Node will output individual messages sequentially with each element in that message including a `msg.payload` and `msg.topic` property.
+The output specifies how the `msg.payload` is formatted. Options are:
+  <ul>
+    <li>original - The original value of the property without modifying data
+    type.</li>
+    <li>object - The original value of the property placed into an object with
+    the object key being the parser value, or optionally the topic if
+    specified.</li>
+  </ul>
+</p>
+
+If the parser input receives an array, each element of the array is parsed individually. The results are returned as multiple sequential messages to the output with each msg having a `msg.payload` and `msg.topic` property.
 
 ![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/parser-node.jpg)
 
-**Example Output (as Array) : `msg.payload`**
-
-```json
-[ "Test Room 1", "Test Room 2", "Test Room 3" ]
 ```
 
 **Example Output (Individual) : `msg.payload`**
@@ -204,10 +210,10 @@ If the input receives an array, each element of the array is parsed individually
 
 #### Configuration Options
 
-* **Property** - The object property to parse from the input.
+* **Parse** - The object property to parse from the input.
 * **Output** - The selector on how to handle array input. The options are:
-    * **Individual Messages** - Sends each element property of the input array (collection) as a separate message.
-    * **Single Message as an Array** - Sends each element property of the input array as an array of strings.
+    * **the individual property value** - Outputs the original value of the poperty without modifying data type.
+    * **a key/value object** - Outputs the original value of the property placed into an object with the object key being the parser value, or optionally the topic if specified.
 * **Topic** - By default, the value of "property" is used as msg.topic. This can be overridden here if needed.
 
 ## License

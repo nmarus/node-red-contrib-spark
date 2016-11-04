@@ -28,11 +28,6 @@
       <div>Select one of the methods offered by the Spark API.</div>
     </div>
   </div>
-
-  <div class="form-row">
-    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-    <input type="text" id="node-input-name" placeholder="Optional name">
-  </div>
 </script>
 
 <script type="text/x-red" data-help-name="Spark API">
@@ -157,10 +152,6 @@
     outputs: 1,
     icon: 'spark-node-red.png',
     label: function() {
-      if(this.name) {
-        return this.name;
-      }
-
       if(this.resource && this.method) {
         this.name = this.resource + '.' + this.method;
         return this.name;
@@ -314,7 +305,8 @@
         if(selectedProfileConfig !== form.profileConfig) {
           // reset
           form.profileConfig = undefined;
-          $('#node-input-name').val('');
+          // $('#node-input-name').val('');
+          form.name = '';
         }
 
         updateVisibility();
@@ -334,7 +326,8 @@
 
           // reset
           form.resource = undefined;
-          $('#node-input-name').val('');
+          // $('#node-input-name').val('');
+          form.name = '';
         }
 
         updateVisibility();
@@ -354,7 +347,8 @@
 
           // reset
           form.method = undefined;
-          $('#node-input-name').val('');
+          // $('#node-input-name').val('');
+          form.name = '';
         }
 
         updateVisibility();

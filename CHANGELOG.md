@@ -1,3 +1,9 @@
+#### 1.1.0: Feature Release
+
+  - added msg.topic to api node output that contains api resource and method
+  - simplified parser node
+  - updated swagger definition files to include new APIs for people, organizations, licenses, and roles.
+
 #### 1.0.4: Maintenance Release
 
   - added msg.topic to parser node output that contains the parser

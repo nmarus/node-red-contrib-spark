@@ -228,6 +228,10 @@ module.exports = function(RED) {
               // set node status
               setNodeStatus('warning');
 
+              // set msg.topic
+              msg.topic = node.resource + '.' + node.method;
+
+              // send message
               node.send(msg);
               return;
             }
@@ -257,6 +261,10 @@ module.exports = function(RED) {
         }
       }
 
+      // set msg.topic
+      msg.topic = node.resource + '.' + node.method;
+
+      // send msg
       node.send(msg);
     }
 
@@ -338,6 +346,10 @@ module.exports = function(RED) {
               // set node status
               setNodeStatus('error');
 
+              // set msg.topic
+              msg.topic = node.resource + '.' + node.method;
+
+              // send message
               node.send(msg);
               return;
             }
@@ -424,6 +436,10 @@ module.exports = function(RED) {
         }
       }
 
+      // set msg.topic
+      msg.topic = node.resource + '.' + node.method;
+
+      // send message
       node.send(msg);
     }
 

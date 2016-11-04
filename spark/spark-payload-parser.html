@@ -1,57 +1,47 @@
 <script type="text/x-red" data-template-name="Spark Payload Parser">
   <div class="form-row" id="node-input-parser-row">
-    <label for="node-input-parser"><i class="icon-tag"></i> Property</label>
+    <label for="node-input-parser"><i class="fa fa-search"></i> Parse</label>
       <input type="text" id="node-input-parser" placeholder="roomId">
-    <div class="form-tips" id="node-input-parser" style="margin-top: 10px;">
-      <div>Enter a property to parse from the output of a api or webhook node.</div>
-    </div>
   </div>
 
-  <div class="form-row" id="node-input-multi-row">
-    <label for="node-input-multi"><i class="icon-tag"></i> Output</label>
-      <select type="text" id="node-input-multi">
-        <option value="false">Single message as an Array</option>
-        <option value="true">Individual messages</option>
+  <div class="form-row" id="node-input-output-row">
+    <label for="node-input-output"><i class="fa fa-arrow-right"></i> Output</label>
+      <select type="text" id="node-input-output">
+        <option value="original">the orignal property value</option>
+        <option value="object">a key/value object</option>
       </select>
-    <div class="form-tips" id="node-input-multi" style="margin-top: 10px;">
-      <div>Select if incoming Array data is parsed into a single message, or
-      into multiple indivdual messages.</div>
-    </div>
   </div>
 
   <div class="form-row">
     <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
-    <input type="text" id="node-input-topic">
-    <div class="form-tips" id="node-input-topic" style="margin-top: 10px;">
-      <div>By default, the value of "property" is used as for
-      <code>msg.topic</code>. This can be overridden here if needed.</div>
-    </div>
-  </div>
-
-  <div class="form-row">
-    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-    <input type="text" id="node-input-name" placeholder="Optional name">
+    <input type="text" id="node-input-topic" placeholder="optionally override topic...">
   </div>
 </script>
 
 <script type="text/x-red" data-help-name="Spark Payload Parser">
   <p>The Spark Parse Node allows parsing of messages received from either the
     Webhook or API Node. The parsed value is placed in the
-    <code>msg.payload</code> of the first output. The parser property value
-    string is passed in <code>msg.topic</code> for use with supporting functions
+    <code>msg.payload</code> of the first output. The value of the "parse" field
+    is delivered in <code>msg.topic</code> for use with supporting functions
     like <code>join</code>. The original <code>msg.payload</code> is passed
     through to the second output.
   </p>
 
-  <p>If the input receives an array, each element of the array is parsed
-  individually. The results can be returned as either a single array or as
-  multiple messages in the output. This option is configured within the Node
-  itself. If setup to send a single array, only a single message is sent with
-  the <code>msg.payload</code> containing the array and a
-  <code>msg.payload</code> containing the parser property. If setup to send as
-  multiple messages, the Node will output individual messages sequentially with
-  each element in that message including a <code>msg.payload</code> and
-  <code>msg.topic</code> property.
+  <p>The output specifies how the <code>msg.payload</code> is formatted. Options
+    are:
+    <ul>
+      <li>original - The original value of the property without modifying data
+      type.</li>
+      <li>object - The original value of the property placed into an object with
+      the object key being the parser value, or optionally the topic if
+      specified.</li>
+    </ul>
+  </p>
+
+  <p>If the parser input receives an array, each element of the array is parsed
+    individually. The results are returned as multiple sequential messages to
+    the output with each msg having a <code>msg.payload</code> and
+    <code>msg.topic</code> property.
   </p>
 
   <!-- Footer -->
@@ -72,7 +62,7 @@
         value: '',
         required: true
       },
-      multi: {
+      output: {
         value: ''
       },
       topic: {
@@ -86,14 +76,12 @@
     outputs: 2,
     icon: 'spark-node-red.png',
     label: function() {
-      if(this.name) {
+      if(this.parser && this.output) {
+        this.name = 'parse → ' + this.parser;
         return this.name;
       }
 
-      if(this.parser) {
-        this.name = 'parser → ' + this.parser;
-        return this.name;
-      } else {
+      else {
         return 'Spark Payload Parser';
       }
     },
@@ -106,12 +94,12 @@
 
       // event: resource updated
       $('#node-input-parser').keyup(function() {
-        $('#node-input-name').val('');
+        form.name = '';
       });
 
-      // set default multi
+      // set default output
       if($('#node-input-parser').val() == '') {
-        $('#node-input-multi').val('false');
+        $('#node-input-output').val('original');
       }
     }
   });
