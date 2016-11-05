@@ -1,3 +1,7 @@
+#### 1.1.1: Maintenance Release
+
+  - updated README.md typos
+
 #### 1.1.0: Feature Release
 
   - added msg.topic to api node output that contains api resource and method
