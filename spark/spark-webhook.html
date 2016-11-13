@@ -35,6 +35,8 @@
     </div>
   </div>
 
+  <hr/>
+
   <div class="form-row">
     <label for="node-input-name"><i class="icon-tag"></i> Name</label>
     <input type="text" id="node-input-name" placeholder="Optional name">
@@ -105,14 +107,12 @@
     outputs: 1,
     icon: 'spark-node-red.png',
     label: function() {
-
       if(this.name) {
         return this.name;
       }
 
       if(this.resource && this.event) {
-        this.name = this.resource.toUpperCaseFirst() + '.' + this.event.toUpperCaseFirst();
-        return this.name;
+        return 'Webhook → ' + this.resource.toUpperCaseFirst() + '.' + this.event.toUpperCaseFirst();
       } else {
         return 'Spark Webhook';
       }
@@ -289,7 +289,6 @@
 
           // reset
           form.resource = undefined;
-          $('#node-input-name').val('');
         }
 
         updateVisibility();
@@ -308,7 +307,6 @@
 
           // reset
           form.event = undefined;
-          $('#node-input-name').val('');
         }
 
         updateVisibility();

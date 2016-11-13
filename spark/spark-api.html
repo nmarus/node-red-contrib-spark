@@ -28,6 +28,13 @@
       <div>Select one of the methods offered by the Spark API.</div>
     </div>
   </div>
+
+  <hr/>
+
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Optional name">
+  </div>
 </script>
 
 <script type="text/x-red" data-help-name="Spark API">
@@ -52,27 +59,26 @@
 
   <!-- Output -->
   <p><strong>Output</strong></p>
-  <p>By convention the output from the Spark API call will have a
-    <code>msg.payload</code> property containing the results of the API call in
-    JSON format. The format of this JSON object will be the same as documented
-    at <a href="https://developer.ciscospark.com" target="_blank">developer.ciscospark.com</a>
+  <p>By convention, the output from the Spark API call will have a
+    <code>msg.payload</code> property. This contains the results of the API call
+    in JSON format. The format of this JSON object will be the same as
+    documented at <a href="https://developer.ciscospark.com" target="_blank">developer.ciscospark.com</a>
     for the responses from the API call.
   </p>
   <p>Additionally the following are defined as part of the <code>msg</code>
     object:
     <ul>
       <li><code>msg.status</code> - http return code</li>
-      <li><code>msg.error</code> - error object (or null if successful)</li>
-      <ul>
-        <li><code>msg.error.message</code> - error message</li>
-        <li><code>msg.error.description</code> - error description</li>
-        <li><code>msg.error.trackingId</code> - tracking id</li>
-      </ul>
       <li><code>msg.headers</code> - response headers object</li>
-      <li><code>msg._msgid</code> - unique identifier</li>
     </ul>
   </p>
-  <hr />
+
+  <p><strong>Multiple Results</strong></p>
+  <p>If multiple records are returned from the Spark API Call, these are passed
+    to the output as individual sequential messages. The <code>msg.parts</code>
+    property is set appropriately for use with the <code>join</code> node if a
+    single array payload is preferred.
+  </p>
 
   <!-- Footer -->
   <p>For further details and examples, reference the
@@ -152,9 +158,12 @@
     outputs: 1,
     icon: 'spark-node-red.png',
     label: function() {
-      if(this.resource && this.method) {
-        this.name = this.resource + '.' + this.method;
+      if(this.name) {
         return this.name;
+      }
+
+      if(this.resource && this.method) {
+        return 'API → ' + this.resource + '.' + this.method;
       } else {
         return 'Spark API Request';
       }
@@ -305,7 +314,6 @@
         if(selectedProfileConfig !== form.profileConfig) {
           // reset
           form.profileConfig = undefined;
-          // $('#node-input-name').val('');
           form.name = '';
         }
 
@@ -326,7 +334,6 @@
 
           // reset
           form.resource = undefined;
-          // $('#node-input-name').val('');
           form.name = '';
         }
 
@@ -347,7 +354,6 @@
 
           // reset
           form.method = undefined;
-          // $('#node-input-name').val('');
           form.name = '';
         }
 

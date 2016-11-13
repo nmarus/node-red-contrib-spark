@@ -3,6 +3,7 @@ module.exports = function(RED) {
   var SwaggerClient = require('swagger-client');
   var path = require('path');
   var fs = require('fs');
+  var _ = require('lodash');
 
   var swaggerClient = null;
   var swaggerUrl = null;
@@ -40,11 +41,15 @@ module.exports = function(RED) {
       swaggerClient.clientAuthorizations.add('apiKey', new SwaggerClient.ApiKeyAuthorization('Authorization', 'Bearer ' + token, 'header'));
       swaggerClient[resource][method](params, opts, function(response) {
         processResponse(msg, response);
-      }, function(error) {
-        processError(msg, error);
+      }, function(errMessage) {
+        if(errMessage) {
+          processError(new Error(errMessage));
+        } else {
+          processError(new Error('swagger client returned undefined error'));
+        }
       });
     } else {
-      processError(msg, 'error with spark api token or swagger client');
+      processError(new Error('spark api token or swagger client invalid or not defined'));
     }
   }
 
@@ -57,16 +62,10 @@ module.exports = function(RED) {
     node.apiUrl = n.apiUrl;
     node.resource = n.resource;
     node.method = n.method;
+    node.id = n.id;
 
     node.reqCount = 0;
     node.reqReceiving = false;
-
-    // set default status
-    node.status({
-      fill: 'blue',
-      shape: 'ring',
-      text: 'Spark API: ready'
-    });
 
     // set node status visual indicators
     function setNodeStatus(state) {
@@ -136,329 +135,176 @@ module.exports = function(RED) {
         node.reqReceiving = false;
         node.status(online);
       }, 200);
-    };
+    }
 
     function processResponse(msg, response) {
-      // extend msg object
-      msg.payload = {};
-      msg.error = {};
-      msg.status = 500;
+      reqPing();
 
-      // handle undefined response
-      if(typeof response === 'undefined') {
-        // set error message
-        msg.error.message = 'response not received';
-
-        // show warning in debug window
-        node.warn(msg.error.message);
-
-        // set node status
-        setNodeStatus('warning');
-      }
-
-      // handle string response
-      else if(typeof response === 'string') {
-        msg.payload = response;
-
-        // set error message
-        msg.error.message = 'response is not object';
-
-        // show warning in debug window
-        node.warn(msg.error.message);
-
-        // set node status
-        setNodeStatus('warning');
-      }
+      var newMsg = {};
+      newMsg.topic = node.resource + '.' + node.method;
 
       // handle object response
-      else if(response && typeof response === 'object') {
+      if(response && typeof response === 'object') {
+
         // capture headers
-        if(response && typeof response.headers === 'object') {
-          msg.headers = response.headers;
+        if(response.hasOwnProperty('headers') && typeof response.headers === 'object') {
+          newMsg.headers = response.headers;
         }
 
         // capture status
-        if(response && response.status) {
-          msg.status = response.status;
-        }
-
-        // handle non 2xx status
-        if(msg.status > 299) {
-          processError(response);
-          return;
+        if(response.hasOwnProperty('status')) {
+          newMsg.status = response.status;
+        } else {
+          newMsg.status = 500;
         }
 
         // if response.data
         if(response.hasOwnProperty('data')) {
-
           var data = response.data;
 
-          // if empty response
-          if(data === '' || data === '{}') {
+          // if response is from a delete...
+          if(newMsg.status === 204) {
+            newMsg.payload = {};
 
-            // determine if empty respose is from delete
-            if(response.status && response.status === 204) {
-              // set msg.error to null
-              msg.error = null;
-            } else {
-              // set error message
-              msg.error.message = 'response is empty';
+            // send message
+            node.send(newMsg);
 
-              // show warning in debug window
-              node.warn(msg.error.message);
-
-              // set node status
-              setNodeStatus('warning');
-            }
+            return null;
           }
 
-          // if response.data is string
-          else if(typeof data === 'string') {
+          // if empty response...
+          if(typeof data === 'string' && (data === '' || data === '{}')) {
+            // show warning
+            node.warn('error processsing response');
+
+            // set node status
+            setNodeStatus('warning');
+
+            return null;
+          }
+
+          // if response.data is valid...
+          if(typeof data === 'string') {
+
             // attempt parsing of json
             try {
               data = JSON.parse(data);
             }
             catch(err) {
-              // set error message
-              msg.error.message = 'json data not found in response';
-
-              // show warning in debug window
-              node.warn(msg.error.message);
+              // show warning
+              node.warn('error: ' + err.message || 'undefined');
 
               // set node status
               setNodeStatus('warning');
 
-              // set msg.topic
-              msg.topic = node.resource + '.' + node.method;
+              return null;
+            }
+
+            // if response is array of items
+            if(typeof data === 'object' && data.hasOwnProperty('items') && data.items instanceof Array) {
+
+              // if as multiple messages
+              if(true) {
+                // define _msgid
+                newMsg._msgid = RED.util.generateId();
+
+                // define messages
+                var newMsgArray = _.map(data.items, function(item, index) {
+                  var msg = _.cloneDeep(newMsg);
+
+                  msg.payload = item;
+                  msg.parts = {
+                    "id": msg._msgid,
+                    "type": "array",
+                    "index": index,
+                    "count": data.items.length
+                  };
+                  return msg;
+                });
+
+                // send message
+                node.send([newMsgArray]);
+              }
+
+              // else, as single message
+              else {
+                // define _msgid
+                newMsg._msgid = msg._msgid;
+
+                // define paypload
+                newMsg.payload = data.items;
+
+                // send message
+                node.send(newMsg);
+              }
+
+            }
+
+            // else, response is single item
+            else {
+              newMsg.payload = data;
 
               // send message
-              node.send(msg);
-              return;
+              node.send(newMsg);
             }
-
-            // abstract away items container for array response
-            if(data && data.hasOwnProperty('items') && data.items instanceof Array) {
-              msg.payload = data.items;
-            } else {
-              msg.payload = data;
-            }
-
-            // set msg.error to null
-            msg.error = null;
           }
         }
 
         // else, response.data does not exist...
         else {
-          // set error message
-          msg.error.message = 'response has no content';
-
-          // show warning in debug window
-          node.warn(msg.error.message);
+          // show warning
+          node.warn('response has no content');
 
           // set node status
           setNodeStatus('warning');
         }
       }
 
-      // set msg.topic
-      msg.topic = node.resource + '.' + node.method;
+      else {
+        node.warn('response invalid or not received');
 
-      // send msg
-      node.send(msg);
+        // set node status
+        setNodeStatus('warning');
+      }
     }
 
-    // api validation error
-    function processError(msg, error) {
-      // extend msg object
-      msg.payload = {};
-      msg.error = {};
-      msg.status = 500;
+    function processError(err) {
+      if(err && typeof err === 'object' && err.hasOwnProperty('message')) {
+        // show error
+        node.error(err.message);
 
-      // handle undefined error
-      if(typeof error === 'undefined') {
-        // set error message
-        msg.error.message = 'unknown error';
-
-        // show warning in debug window
-        node.warn(msg.error.message);
-
-        // set node status
-        setNodeStatus('error');
+      } else {
+        node.error('unknown error');
       }
 
-      // handle string error
-      else if(error && typeof error === 'string') {
-
-        // set error message
-        msg.error.message = error;
-
-        // show warning in debug window
-        node.warn(msg.error.message);
-
-        // set node status
-        setNodeStatus('error');
-      }
-
-      // handle object response
-      else if(error && typeof error === 'object') {
-        // capture headers
-        if(error && typeof error.headers === 'object') {
-          msg.headers = error.headers;
-        }
-
-        // capture status
-        if(error && error.status) {
-          msg.status = error.status;
-        }
-
-        // check for error object from Spark API
-        if(error && error.hasOwnProperty('data')) {
-
-          var data = error.data;
-
-          // if empty response
-          if(data === '' || data === '{}') {
-
-            // set error message
-            msg.error.message = 'unknown error';
-
-            // show warning in debug window
-            node.warn(msg.error.message);
-
-            // set node status
-            setNodeStatus('error');
-          }
-
-          // if error.data is string
-          else if(typeof data === 'string') {
-            // atempt parsing of json
-            try {
-              var data = JSON.parse(data);
-            }
-            catch(err) {
-              // set error message
-              msg.error.message = 'unknown error';
-
-              // show warning in debug window
-              node.warn(msg.error.message);
-
-              // set node status
-              setNodeStatus('error');
-
-              // set msg.topic
-              msg.topic = node.resource + '.' + node.method;
-
-              // send message
-              node.send(msg);
-              return;
-            }
-
-            // msg.error.message
-            if(data.hasOwnProperty('message')) {
-              msg.error.message = data.message;
-            } else {
-              // define errors that do not generate message
-              switch(msg.status) {
-                case 400:
-                  // set error message
-                  msg.error.message = '400 (request invalid) response received';
-                  break;
-                case 401:
-                  // set error message
-                  msg.error.message = '401 (request unauthorized) response received';
-                  break;
-                case 403:
-                  // set error message
-                  msg.error.message = '403 (request not allowed) response received';
-                  break;
-                case 404:
-                  // set error message
-                  msg.error.message = '404 (request unauthorized) response received';
-                  break;
-                case 429:
-                  // set error message
-                  msg.error.message = '429 (rate limiter hit) response received';
-                  break;
-                case 500:
-                  // set error message
-                  msg.error.message = '500 (something went wrong on server) response received';
-                  break;
-                case 501:
-                  // set error message
-                  msg.error.message = '501 response received';
-                  break;
-                case 502:
-                  // set error message
-                  msg.error.message = '502 response received';
-                  break;
-                case 503:
-                  // set error message
-                  msg.error.message = '503 (server is overloaded) response received';
-                  break;
-                default:
-                  // set error message
-                  msg.error.message = msg.status + ' response received';
-                  break;
-              }
-            }
-
-            // msg.error.description
-            if(data.hasOwnProperty('errors') && data.errors instanceof Array) {
-              if(data.errors.length > 0 && data.errors[0].hasOwnProperty('description')) {
-                msg.error.description = data.errors[0].description;
-              }
-            }
-
-            // msg.error.trackingId
-            if(data.hasOwnProperty('trackingId')) {
-              msg.error.trackingId = data.trackingId;
-            }
-
-            // show warning in debug window
-            node.warn(msg.error.message);
-
-            // set node status
-            setNodeStatus('error');
-          }
-        }
-
-        // else error.data does not exist
-        else {
-          // set error message
-          msg.error.message = 'unknown error';
-
-          // show warning in debug window
-          node.warn(msg.error.message);
-
-          // set node status
-          setNodeStatus('error');
-        }
-      }
-
-      // set msg.topic
-      msg.topic = node.resource + '.' + node.method;
-
-      // send message
-      node.send(msg);
+      // set node status
+      setNodeStatus('error');
     }
 
     // start node if profileConfig is defined
     if(node.profileConfig) {
 
+      // set default status
+      setNodeStatus();
+
       // create client
       createClient(node.apiUrl, function(err) {
+
+        // if error creating client
         if(err) {
-          // show warning in debug window
+          // show warning
           node.warn('invalid input');
 
           // set node status
           setNodeStatus('input_error');
 
           return;
-        } else {
+        }
 
-          // input event
+        // else, client created
+        else {
+
+          // create input event
           node.on('input', function(msg) {
 
             var opts = {
@@ -474,7 +320,7 @@ module.exports = function(RED) {
               try {
                 params = JSON.parse(msg.payload);
                 if(params instanceof Array) {
-                  // show warning in debug window
+                  // show warning
                   node.warn('invalid input');
 
                   // set node status
@@ -484,7 +330,7 @@ module.exports = function(RED) {
                 }
               }
               catch(err) {
-                // show warning in debug window
+                // show warning
                 node.warn(err.message);
 
                 // set node status
@@ -501,7 +347,7 @@ module.exports = function(RED) {
 
             // else input is invalid
             else {
-              // show warning in debug window
+              // show warning
               node.warn('invalid input');
 
               // set node status
@@ -511,7 +357,6 @@ module.exports = function(RED) {
             }
 
             // Send Spark API Request
-            reqPing();
             sendRequest(msg, node.resource, node.method, params, opts, node.profileConfig.credentials.token, processResponse, processError);
           });
         }

@@ -1,47 +1,51 @@
 <script type="text/x-red" data-template-name="Spark Payload Parser">
-  <div class="form-row" id="node-input-parser-row">
-    <label for="node-input-parser"><i class="fa fa-search"></i> Parse</label>
-      <input type="text" id="node-input-parser" placeholder="roomId">
+  <div class="form-row" style="margin-bottom:0;">
+      <label><i class="fa fa-list"></i> Parser</span></label>
   </div>
 
-  <div class="form-row" id="node-input-output-row">
-    <label for="node-input-output"><i class="fa fa-arrow-right"></i> Output</label>
-      <select type="text" id="node-input-output">
-        <option value="original">the orignal property value</option>
-        <option value="object">a key/value object</option>
-      </select>
+  <div class="form-row node-input-parser-container-row">
+      <ol id="node-input-parser-container"></ol>
   </div>
+
+  <hr/>
 
   <div class="form-row">
-    <label for="node-input-topic"><i class="fa fa-tasks"></i> Topic</label>
-    <input type="text" id="node-input-topic" placeholder="optionally override topic...">
+    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Optional name">
   </div>
 </script>
 
 <script type="text/x-red" data-help-name="Spark Payload Parser">
-  <p>The Spark Parse Node allows parsing of messages received from either the
-    Webhook or API Node. The parsed value is placed in the
-    <code>msg.payload</code> of the first output. The value of the "parse" field
-    is delivered in <code>msg.topic</code> for use with supporting functions
-    like <code>join</code>. The original <code>msg.payload</code> is passed
-    through to the second output.
+  <p>The Spark Parse Node allows parsing of specific properties from the JSON
+    <code>msg.payload</code> received from either the "Spark Webhook Node" or
+    the "Spark API Node".
   </p>
 
-  <p>The output specifies how the <code>msg.payload</code> is formatted. Options
-    are:
-    <ul>
-      <li>original - The original value of the property without modifying data
-      type.</li>
-      <li>object - The original value of the property placed into an object with
-      the object key being the parser value, or optionally the topic if
-      specified.</li>
-    </ul>
+  <!-- Configuration -->
+  <p><strong>Configuration</strong></p>
+  <p>Define each <i>"property"</i> to parse from the inbound
+    <code>msg.payload</code>. Optionally, define a <i>"name"</i> to remap the
+    property name used in the oubound JSON object. This allows remapping of
+    properties such as <code>msg.payload.id</code> to
+    <code>msg.payload.roomId</code>. If <i>"name"</i> is left undefined, it will
+    use the same value as the original property.
   </p>
 
-  <p>If the parser input receives an array, each element of the array is parsed
-    individually. The results are returned as multiple sequential messages to
-    the output with each msg having a <code>msg.payload</code> and
-    <code>msg.topic</code> property.
+  <p>Add additional rows to define multiple properties and names to construct
+    the output JSON object.
+  </p>
+
+  <!-- Input -->
+  <p><strong>Input</strong></p>
+  <p>This Node accepts input from either the "Spark API Node" or
+    "Spark Webhook Node".
+  </p>
+
+  <!-- Output -->
+  <p><strong>Output</strong></p>
+  <p>By convention, the output from the Spark Parser will have a
+    <code>msg.payload</code> property. This contains a new JSON object with only
+    the properties defined (and optionally remapped) in the Node configuration.
   </p>
 
   <!-- Footer -->
@@ -58,49 +62,83 @@
     paletteLabel: 'parser',
     color: '#C0DEED',
     defaults: {
-      parser: {
-        value: '',
-        required: true
-      },
-      output: {
-        value: ''
-      },
-      topic: {
-        value: ''
-      },
       name: {
         value: ''
+      },
+      parsers: {
+        value: [{key: '', as: ''}],
       }
     },
     inputs: 1,
-    outputs: 2,
+    outputs: 1,
     icon: 'spark-node-red.png',
     label: function() {
-      if(this.parser && this.output) {
-        this.name = 'parse → ' + this.parser;
+      if(this.name) {
         return this.name;
       }
 
-      else {
-        return 'Spark Payload Parser';
+      if(this.parsers && this.parsers.length > 0 && this.parsers[0].key !== '') {
+        var label = [];
+        for(var i = 0; i < this.parsers.length; i++) {
+          label.push(this.parsers[i].key);
+        }
+        return 'Parser → ' + label.join(', ');
+      } else {
+        return "Spark Payload Parser";
       }
     },
     labelStyle: function() {
       return this.name ? 'node_label_italic' : '';
     },
     oneditprepare: function() {
-
       var form = this;
 
-      // event: resource updated
-      $('#node-input-parser').keyup(function() {
-        form.name = '';
+      $('#node-input-parser-container').css('min-height','300px').css('min-width','450px').editableList({
+        addItem: function(container,i,opt) {
+          var parser = opt;
+
+          var row = $('<div/>').appendTo(container);
+
+          var parseKey = $('<input/>',{style:'width: 200px; margin-right: 5px',class:'node-input-parser-key',type:'text',placeholder:'property'})
+            .appendTo(row);
+
+          var parseAs = $('<input/>',{style:'width: 200px',class:'node-input-parser-as',type:'text',placeholder:'name (optional)'})
+            .appendTo(row);
+
+          parseKey.val(parser.key);
+          parseAs.val(parser.as);
+
+        },
+        removable: true
       });
 
-      // set default output
-      if($('#node-input-parser').val() == '') {
-        $('#node-input-output').val('original');
+      if(!form.parsers || form.parsers.length === 0) {
+        form.parsers = [{key: '', as: ''}];
       }
+
+      for (var i = 0; i < form.parsers.length; i++) {
+        var parser = form.parsers[i];
+        $('#node-input-parser-container').editableList('addItem', parser);
+      }
+
+    },
+    oneditsave: function() {
+      var form = this;
+
+      var parsers = $("#node-input-parser-container").editableList('items');
+      form.parsers = [];
+
+      parsers.each(function(i) {
+        var p = $(this);
+
+        var parser = {
+          key: p.find('.node-input-parser-key').val(),
+          as: p.find('.node-input-parser-as').val()
+        };
+
+        form.parsers.push(parser);
+      });
+
     }
   });
 </script>

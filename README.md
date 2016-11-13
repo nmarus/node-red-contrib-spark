@@ -2,13 +2,15 @@
 
 [Node-RED](http://nodered.org) Nodes to integrate with the [Cisco Spark API](https://developer.ciscospark.com).
 
+Version 2.0.0 [(changelog)](https://github.com/nmarus/node-red-contrib-spark/blob/master/CHANGELOG.md)
+
 ![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/flow01.jpg)
 
 ### Nodes
 
 * **api** - This Node receives queries on the input that are then sent to the Spark API. The results are provided at the output.
 * **webhook** - This Node creates, removes, and manages the Webhook features of the Spark API. Once deployed, and subsequently triggered, the contents of the notification will be sent to the output of this Node.
-* **parser** - This is a utility Node that accepts input from the output of either the Api or Webhook Node. This acts similarly to the `map` functionality provided in many programming languages and additionally provides options when dealing with input that is in the form of a collection (array of objects).
+* **parser** - This is a utility Node that accepts input from the output of either the API or Webhook Node.
 * **auth** - This is a Config Node that holds the credential Bearer Token for the Spark API. Once initially defined, either under the Api or Webhook Node, it will be available to select on all other Api and Webhook Nodes that are created. You can define multiple Auth profiles so as to work with different Spark Accounts or Bots within the same flow.
 
 ### Install
@@ -50,7 +52,7 @@ npm install node-red-contrib-spark
 
 ## API Node
 
-The Spark API Node sends REST queries via messages received by the input connector in the `msg.payload` object. Results of the API call are provided at the output in the `msg.payload` object.
+The Spark API Node sends REST queries via messages received by the input connector in the `msg.payload` object. Results of the API call are provided at the output in the `msg.payload` object. If multiple records are returned from the Spark API Call, these are passed to the output as individual sequential messages. The `msg.parts` property is set appropriately for use with the `join` node if a single array payload is preferred.
 
 ![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/api-node.jpg)
 
@@ -60,17 +62,15 @@ The Spark API request is passed as a JSON object in `msg.payload`. The `msg.payl
 
 #### Module Output
 
-By convention the output from the Spark API call will have a `msg.payload` property containing the results of the API call in JSON format. The format of this JSON object will be the same as documented at [developer.ciscospark.com](https://developer.ciscospark.com) for the responses from the API call.
+By convention, the output from the Spark API call will have a `msg.payload` property. This contains the results of the API call in JSON format. The format of this JSON object will be the same as documented at [developer.ciscospark.com](https://developer.ciscospark.com) for the responses from the API call.
 
 Additionally the following are defined as part of the msg object:
 
 * `msg.status` : http return code
-* `msg.error` : error object (will evaluate to `null` when no error is present)
-  * `msg.error.message` : error message
-  * `msg.error.description` : error description (only available for certain errors)
-  * `msg.error.trackingId` : tracking id (only available for certain errors)
 * `msg.headers` - response headers object
-* `msg._msgid` - unique identifier
+
+#### Multiple Results
+If multiple records are returned from the Spark API Call, these are passed to the output as individual sequential messages. The `msg.parts` property is set appropriately for use with the `join` node if a single array payload is preferred.
 
 **Example: Get Person by Email**
 
@@ -176,29 +176,15 @@ The Spark Webhook Node is triggered when a resource event is matched. When the N
 
 ## Parser Node
 
-The Spark Parse Node allows parsing of messages received from either the Webhook or API Node. The parsed value is placed in the `msg.payload` of the first output. The value of the "parse" field is delivered in `msg.topic` for use with supporting functions like `join`. The original `msg.payload` is passed through to the second output.
-
-The output specifies how the `msg.payload` is formatted. Options are:
-  <ul>
-    <li>original - The original value of the property without modifying data
-    type.</li>
-    <li>object - The original value of the property placed into an object with
-    the object key being the parser value, or optionally the topic if
-    specified.</li>
-  </ul>
-</p>
-
-If the parser input receives an array, each element of the array is parsed individually. The results are returned as multiple sequential messages to the output with each msg having a `msg.payload` and `msg.topic` property.
+The Spark Parse Node allows parsing of specific properties from the JSON `msg.payload` received from either the "Spark Webhook Node" or the "Spark API Node".
 
 ![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/parser-node.jpg)
 
 #### Configuration Options
 
-* **Parse** - The object property to parse from the input.
-* **Output** - The selector on how to handle parsed output:
-    * **the individual property value** - Outputs the original value of the property without modifying data type.
-    * **a key/value object** - Outputs the original value of the property placed into an object with the object key being the parser value, or optionally the topic if specified.
-* **Topic** - By default, the value of "parse" is used as msg.topic. This can be overridden here if needed.
+Define each *"property"* to parse from the inbound `msg.payload`. Optionally, define a *"name"* to remap the property name used in the oubound JSON object. This allows remapping of properties such as `msg.payload.id` to `msg.payload.roomId`. If *"name"* is left undefined, it will use the same value as the original property. Add additional rows to define multiple properties and names to construct the output JSON object.
+
+![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/parser-node-config.jpg)
 
 ## License
 

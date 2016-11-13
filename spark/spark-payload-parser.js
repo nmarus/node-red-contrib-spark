@@ -7,129 +7,76 @@ module.exports = function(RED) {
 
     var node = this;
 
-    node.parser = n.parser;
-    node.output = n.output.toLowerCase();
-    node.topic = n.topic;
+    node.parsers = n.parsers;
 
-    function processPayload(pl, k) {
-      // determine topic
-      var topic = typeof node.topic === 'string' && node.topic.length > 0 ? node.topic : k;
-
-      // value
-      var value = '';
-
+    // return value
+    function getPayloadKeyValue(payload, key) {
       // validate payload is object
-      if(typeof pl === 'object') {
+      if(typeof payload === 'object') {
 
-        // if webhook
-        if(pl.hasOwnProperty('data')) {
-          if(pl.data.hasOwnProperty(k)) {
-            value = pl.data[k];
-          } else {
-            return null;
-          }
+        var value = '';
+
+        // search msg.payload.data
+        if(payload.hasOwnProperty('data') && payload.data.hasOwnProperty(key)) {
+          value = payload.data[key];
         }
 
-        // else api
-        else {
-          if(pl.hasOwnProperty(k)) {
-            value = pl[k];
-          } else {
-            return null;
-          }
+        // search msg.payload
+        else if(payload.hasOwnProperty(key)) {
+          value = payload[key];
         }
 
-        // format output
-
-        // if output is original
-        if(node.output === 'original') {
+        if(value != '') {
           return value;
         }
-
-        // else, if output is object
-        else if(node.output === 'object') {
-          return { [topic]: value };
-        }
-
-        // else, unrecognized
-        else {
-          return null;
-        }
-      }
-
-      // else, not an object
-      else {
-        return null;
       }
     }
 
-    function processPayloadArray(plArr, k) {
-      // determine topic
-      var topic = typeof node.topic === 'string' && node.topic.length > 0 ? node.topic : k;
+    function processMsg(msg, parsers) {
+      var newMsg = _.cloneDeep(msg);
+      var newPayload = {};
 
-      var collection =  _.map(plArr, function(pl) {
-        // define payload
-        var payload = processPayload(pl, k);
-        if(payload) {
-          return { "payload": payload, "topic": topic };
-        }
-      });
+      if(parsers && parsers instanceof Array && parsers.length > 0) {
+        _.forEach(parsers, function(parser) {
+          if(parser.hasOwnProperty('key') && parser.key !== '') {
+            if(!parser.hasOwnProperty('as') || (parser.hasOwnProperty('as') && parser.as === '')) {
+              parser.as = parser.key;
+            }
+            newPayload[parser.as] = getPayloadKeyValue(newMsg.payload, parser.key);
+          }
+        });
+      }
 
-      collection = _.compact(collection);
+      if(newPayload !== {}) {
+        newMsg.payload = newPayload ;
 
-      if(collection && collection.length > 0) {
-        return collection;
-      } else {
-        return null;
+        return newMsg;
       }
     }
 
     // input event
     node.on('input', function(msg) {
-      // determine topic
-      var topic = typeof node.topic === 'string' && node.topic.length > 0 ? node.topic : node.parser;
-
-      var msgParser = {};
 
       // if input is valid
-      if(typeof node.parser === 'string' && msg && typeof msg === 'object' && msg.hasOwnProperty('payload')) {
-        var payload = _.clone(msg.payload);
+      if(msg && typeof msg === 'object' && msg.hasOwnProperty('payload')) {
 
-        // if payload is array
-        if(payload instanceof Array) {
-          if(payload.length > 0) {
-            var newArray = processPayloadArray(payload, node.parser);
-            if(newArray && newArray.length > 0) {
-              msgParser = newArray;
-            } else {
-              msgParser = null;
-              node.warn('unmatched parser');
-            }
+        // create new message and preserve properties that this node is not manipulating
+        var newMsg = _.cloneDeep(msg);
+
+        // if payload is object
+        if(typeof newMsg.payload === 'object') {
+          newMsg = processMsg(newMsg, node.parsers);
+
+          // if parser returned value
+          if(newMsg) {
+            node.send(newMsg);
           }
         }
-
-        // else, payload is not instance of array
-        else {
-          var newPayload = processPayload(payload, node.parser);
-          if(newPayload) {
-            msgParser.payload = newPayload;
-            msgParser.topic = topic;
-          } else {
-            msgParser = null;
-            node.warn('unmatched parser');
-          }
-        }
-
-        // send msgs
-        node.send([msgParser, msg]);
       }
 
       // else input is invalid
       else {
         node.warn('invalid input');
-
-        // send msgs
-        node.send([null, msg]);
       }
     });
   }
