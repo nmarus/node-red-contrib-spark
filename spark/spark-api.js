@@ -41,15 +41,11 @@ module.exports = function(RED) {
       swaggerClient.clientAuthorizations.add('apiKey', new SwaggerClient.ApiKeyAuthorization('Authorization', 'Bearer ' + token, 'header'));
       swaggerClient[resource][method](params, opts, function(response) {
         processResponse(msg, response);
-      }, function(errMessage) {
-        if(errMessage) {
-          processError(new Error(errMessage));
-        } else {
-          processError(new Error('swagger client returned undefined error'));
-        }
+      }, function(err) {
+        processError(msg, err);
       });
     } else {
-      processError(new Error('spark api token or swagger client invalid or not defined'));
+      node.error('spark api token or swagger client invalid or not defined');
     }
   }
 
@@ -158,19 +154,19 @@ module.exports = function(RED) {
           newMsg.status = 500;
         }
 
+        // if response is from a delete...
+        if(newMsg.status === 204) {
+          newMsg.payload = {};
+
+          // send message
+          node.send(newMsg);
+
+          return null;
+        }
+
         // if response.data
         if(response.hasOwnProperty('data')) {
           var data = response.data;
-
-          // if response is from a delete...
-          if(newMsg.status === 204) {
-            newMsg.payload = {};
-
-            // send message
-            node.send(newMsg);
-
-            return null;
-          }
 
           // if empty response...
           if(typeof data === 'string' && (data === '' || data === '{}')) {
@@ -201,7 +197,7 @@ module.exports = function(RED) {
             }
 
             // if response is array of items
-            if(typeof data === 'object' && data.hasOwnProperty('items') && data.items instanceof Array) {
+            if(typeof data === 'object' && data.hasOwnProperty('items') && data.items instanceof Array && data.items.length > 0) {
 
               // if as multiple messages
               if(true) {
@@ -240,6 +236,14 @@ module.exports = function(RED) {
 
             }
 
+            // else, if response is empty array of items
+            else if(typeof data === 'object' && data.hasOwnProperty('items') && data.items instanceof Array) {
+              newMsg.payload = {};
+
+              // send message
+              node.send(newMsg);
+            }
+
             // else, response is single item
             else {
               newMsg.payload = data;
@@ -268,13 +272,59 @@ module.exports = function(RED) {
       }
     }
 
-    function processError(err) {
-      if(err && typeof err === 'object' && err.hasOwnProperty('message')) {
-        // show error
-        node.error(err.message);
+    function processError(msg, response) {
+      if(response && typeof response === 'object') {
+        var status;
+        var data;
+        var errMessage;
+        var trackingId;
 
+        // capture status
+        if(response.hasOwnProperty('status')) {
+          status = response.status;
+        } else {
+          status = 500;
+        }
+
+        // capture response body
+        if(response.hasOwnProperty('data')) {
+          data = response.data;
+
+          // if response.data is valid...
+          if(typeof data === 'string') {
+
+            // attempt parsing of json
+            try {
+              data = JSON.parse(data);
+            }
+            catch(err) {
+              node.error('error ' + status + ': ' + err.message || 'undefined');
+
+              // set node status
+              setNodeStatus('error');
+
+              return null;
+            }
+
+            if(data.hasOwnProperty('trackingId')) {
+              trackingId = data.trackingId;
+            } else {
+              trackingId = 'unknown';
+            }
+
+            if(data.hasOwnProperty('message')) {
+              errMessage = data.message;
+            } else {
+              errMessage = 'unknown';
+            }
+
+            node.error('error ' + status + ': ' + errMessage + ' | trackingId: ' + trackingId);
+          }
+        } else {
+          node.error('error ' + status + ': undefined error');
+        }
       } else {
-        node.error('unknown error');
+        node.error('error: unknown API response');
       }
 
       // set node status
