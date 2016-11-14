@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-spark",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Node-RED Nodes to integrate with the Cisco Spark API",
   "dependencies": {
     "body-parser": "1.15.2",
