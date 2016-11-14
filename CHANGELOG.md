@@ -1,6 +1,11 @@
+#### 2.0.1: Maintenance Release
+
+  - updated error handling of api node
+  - updated swagger definitions
+
 #### 2.0.0: Major Release
 
-  - Updated all node inline documentation and label formats
+  - updated all node inline documentation and label formats
   - api node now sends array responses as individual sequential messages
   - parse node rebuilt to allow more than 1 property to be parsed from payload
   - updated README.md to include updated documentation around parse and api node
@@ -13,7 +18,7 @@
 
   - added msg.topic to api node output that contains api resource and method
   - simplified parser node
-  - updated swagger definition files to include new APIs for people, organizations, licenses, and roles.
+  - updated swagger definition files to include new APIs for people, organizations, licenses, and roles
 
 #### 1.0.4: Maintenance Release
 
