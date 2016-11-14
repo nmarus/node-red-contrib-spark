@@ -197,7 +197,7 @@ module.exports = function(RED) {
             }
 
             // if response is array of items
-            if(typeof data === 'object' && data.hasOwnProperty('items') && data.items instanceof Array && data.items.length > 0) {
+            if(typeof data === 'object' && data.hasOwnProperty('items') && data.items instanceof Array) {
 
               // if as multiple messages
               if(true) {
@@ -236,13 +236,6 @@ module.exports = function(RED) {
 
             }
 
-            // else, if response is empty array of items
-            else if(typeof data === 'object' && data.hasOwnProperty('items') && data.items instanceof Array) {
-              newMsg.payload = {};
-
-              // send message
-              node.send(newMsg);
-            }
 
             // else, response is single item
             else {

@@ -1,3 +1,7 @@
+#### 2.0.2: Maintenance Release
+
+  - updated api node handling of empty responses
+
 #### 2.0.1: Maintenance Release
 
   - updated error handling of api node
