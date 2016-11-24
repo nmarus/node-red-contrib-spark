@@ -20,6 +20,8 @@ The simplest installation method is done via Node-RED itself. In the "Manage Pal
 **Via the node-red-admin CLI tool:**
 
 ```bash
+# requires node-red to be running
+
 # install node-red-admin if needed
 npm install -g node-red-admin
 
@@ -40,13 +42,15 @@ cd node-red-contrib-spark
 git submodule init
 git submodule update
 
-# from your node-red installation directory
+# from your node-red user directory
+cd $HOME/.node-red
 npm install /path/to/node-red-contrib-spark
 ```
 
 **Via NPM repository:**
 ```bash
-# from your node-red installation directory
+# from your node-red user directory
+cd $HOME/.node-red
 npm install node-red-contrib-spark
 ```
 
