@@ -1,4 +1,5 @@
 module.exports = function(RED) {
+  'use strict';
 
   function SparkAuthConfigNode(n) {
     RED.nodes.createNode(this, n);
