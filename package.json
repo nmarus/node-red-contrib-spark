@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nmarus/node-red-contrib-spark"
+    "url": "git+https://github.com/cumberlandgroup/node-red-contrib-spark"
   },
   "license": "MIT",
   "keywords": [
@@ -27,7 +27,7 @@
       "spark-auth-config": "spark/spark-auth-config.js"
     }
   },
-  "author": "Nicholas Marus <nmarus@gmail.com>",
+  "author": "Nicholas Marus <nick.marus@cumberlandgroupit.com>",
   "scripts": {
     "build": "./node_modules/.bin/browserify ./spark/swagger-client.js -o ./spark/swagger-client-web.js"
   },
