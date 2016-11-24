@@ -2,9 +2,9 @@
 
 [Node-RED](http://nodered.org) Nodes to integrate with the [Cisco Spark API](https://developer.ciscospark.com).
 
-Version 2.0.0 [(changelog)](https://github.com/nmarus/node-red-contrib-spark/blob/master/CHANGELOG.md)
+Version 2.0.0 [(changelog)](https://github.com/cumberlandgroup/node-red-contrib-spark/blob/master/CHANGELOG.md)
 
-![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/flow01.jpg)
+![](https://github.com/cumberlandgroup/node-red-contrib-spark/raw/master/images/flow01.jpg)
 
 ### Nodes
 
@@ -35,7 +35,7 @@ node-red-admin install node-red-contrib-spark
 **Via source:**
 ```bash
 # clone repo
-git clone https://github.com/nmarus/node-red-contrib-spark
+git clone https://github.com/cumberlandgroup/node-red-contrib-spark
 cd node-red-contrib-spark
 
 # get submodule
@@ -58,7 +58,7 @@ npm install node-red-contrib-spark
 
 The Spark API Node sends REST queries via messages received by the input connector in the `msg.payload` object. Results of the API call are provided at the output in the `msg.payload` object. If multiple records are returned from the Spark API Call, these are passed to the output as individual sequential messages. The `msg.parts` property is set appropriately for use with the `join` node if a single array payload is preferred.
 
-![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/api-node.jpg)
+![](https://github.com/cumberlandgroup/node-red-contrib-spark/raw/master/images/api-node.jpg)
 
 #### Module Input
 
@@ -147,7 +147,7 @@ The following object would be sent in the `msg.payload` input to a Spark API Nod
 
 The Spark Webhook Node is triggered when a resource event is matched. When the Node is deployed, it automatically creates the associated Cisco Spark Webhook. When the Node is removed, the Webhook reference is automatically removed in the Spark API.
 
-![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/webhook-node.jpg)
+![](https://github.com/cumberlandgroup/node-red-contrib-spark/raw/master/images/webhook-node.jpg)
 
 **Example Output : `msg.payload`**
 
@@ -182,13 +182,13 @@ The Spark Webhook Node is triggered when a resource event is matched. When the N
 
 The Spark Parse Node allows parsing of specific properties from the JSON `msg.payload` received from either the "Spark Webhook Node" or the "Spark API Node".
 
-![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/parser-node.jpg)
+![](https://github.com/cumberlandgroup/node-red-contrib-spark/raw/master/images/parser-node.jpg)
 
 #### Configuration Options
 
 Define each *"property"* to parse from the inbound `msg.payload`. Optionally, define a *"name"* to remap the property name used in the oubound JSON object. This allows remapping of properties such as `msg.payload.id` to `msg.payload.roomId`. If *"name"* is left undefined, it will use the same value as the original property. Add additional rows to define multiple properties and names to construct the output JSON object.
 
-![](https://github.com/nmarus/node-red-contrib-spark/raw/master/images/parser-node-config.jpg)
+![](https://github.com/cumberlandgroup/node-red-contrib-spark/raw/master/images/parser-node-config.jpg)
 
 ## License
 
