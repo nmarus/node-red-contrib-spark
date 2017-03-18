@@ -58,8 +58,10 @@
 </script>
 
 <script type="text/javascript">
+  var httpAdminRoot = window.location.pathname;
+
   // define the local url where the API defnition can be found
-  var _hookUrl = window.location.protocol + '//' + window.location.hostname + ':' + window.location.port + '/webhook/cisco_spark_v1.json';
+  var _hookUrl = window.location.origin + httpAdminRoot + 'webhook/cisco_spark_v1.json';
 
   // define webhook definition object
   var _hookObj = {};
@@ -317,7 +319,6 @@
 
       // update profile config
       updateProfileConfig();
-
     }
   });
 </script>

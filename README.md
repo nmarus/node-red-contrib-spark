@@ -155,7 +155,7 @@ The Spark Webhook Node is triggered when a resource event is matched. When the N
 {
     "id": "Y2lzY29zcGFyazovL3VzL1dFQkhPT0svNzJkYzlhNTctYmY4MC00OTdjLWFhM2MtNjMyYzUyOThkMTFk",
     "name": "Test",
-    "targetUrl": "http://myhost.com:3000/spark388d9fffca49b8",
+    "targetUrl": "http://myhost.com:3000/node_red_contrib_spark_388d9fffca49b8",
     "resource": "messages",
     "event": "created",
     "ownedBy": "creator",
@@ -176,7 +176,7 @@ The Spark Webhook Node is triggered when a resource event is matched. When the N
 * **Profile** - The Spark credential profile to use with this Node.
 * **Resource** - The Spark resource to bind a Webhook to.
 * **Event** - The specific event of the resource selected.
-* **Host** - The base URL that is used to build the Webhook in the Spark API. This should be reachable from the internet and follow the format of `http(s)://domain.tld:<port>`. The Webhook Node will dynamicly publish webroutes under this URL as `/spark<node-uuid>`. *Note that the Webhook is automatically created in the Spark API after deploying and automatically removed if the Node is deleted and the flow re-deployed*
+* **Host** - The base URL that is used to build the Webhook in the Spark API. This should be reachable from the internet and follow the format of `http(s)://domain.tld:<port>`. The Webhook Node will dynamicly publish webroutes under this URL as `/node_red_contrib_spark_<node-uuid>`. *Note that the Webhook is automatically created in the Spark API after deploying and automatically removed if the Node is deleted and the flow re-deployed. If you have defined the httpNodeRoot setting in Node-Red, the webhook target URL will be created under that path. This should be mostly transparent as this node will create and remove webhooks from the Spark API as the nodes are added and removed from the workspace. If you shutdown Node-Red with a webhook deployed on the workspace, this webhook will persist in the Spark API and will need to be manually removed.*
 
 ## Parser Node
 

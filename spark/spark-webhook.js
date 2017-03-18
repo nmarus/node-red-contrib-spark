@@ -12,6 +12,14 @@ module.exports = function(RED) {
 
     var node = this;
 
+    var httpNodeRoot;
+
+    if(RED.settings.httpNodeRoot) {
+      httpNodeRoot = RED.settings.httpNodeRoot;
+    } else {
+      httpNodeRoot = '/';
+    }
+
     var webhookReq = {
       url: 'https://api.ciscospark.com/v1/webhooks/',
       json: true
@@ -24,8 +32,10 @@ module.exports = function(RED) {
     node.event = n.event;
     node.host = n.host;
 
-    node.url = '/spark' + node.id.replace(/\./g, '');
-    node.webhookTarget = node.host + node.url;
+    node.basename = 'node_red_contrib_spark_' + node.id.replace(/\./g, '');
+
+    node.pathname = httpNodeRoot + node.basename;
+    node.webhookTarget = node.host + node.pathname;
 
     node.webhookId = n.webhookId || null;
     node.webhookObj = n.webhookObj || null;
@@ -40,7 +50,7 @@ module.exports = function(RED) {
       text: 'Spark Webhook: ready'
     });
 
-    // remove duplicate webhooks
+    // remove webhooks
     node.removeWebhooks = function(callback) {
 
       // if spark api token and webhook id are defined...
@@ -57,7 +67,7 @@ module.exports = function(RED) {
           // if request error...
           if(err) {
             node.log('error: ' + err.message);
-            callback(err);
+            if(callback) callback(err);
           }
 
           // else, if webhooks returned...
@@ -65,19 +75,20 @@ module.exports = function(RED) {
             _.forEach(res.body.items, function(webhook) {
               if(webhook.targetUrl == node.webhookTarget) {
                 node.removeWebhook(webhook.id);
+                node.log('Removed existing webhook for: ' + webhook.targetUrl);
               }
             });
-            callback(null);
+            if(callback) callback(null);
           }
 
           // else...
           else {
-            callback(null);
+            if(callback) callback(null);
           }
 
         });
       } else {
-        callback(null);
+        if(callback) callback(null);
       }
     };
 
@@ -158,6 +169,7 @@ module.exports = function(RED) {
           else if(res && res.statusCode && res.statusCode == 200 && typeof res.body === 'object') {
             node.webhookObj = res.body;
             node.webhookId = res.body.id;
+            node.log('Created webhook for: ' + node.webhookTarget);
           }
 
           // else, response not ok...
@@ -259,15 +271,15 @@ module.exports = function(RED) {
       }
     };
 
-    // cleanup node on deply
+    // cleanup node on deploy
     node.on('close',function() {
       var node = this;
 
-      // remove express route
+      // remove route
       RED.httpNode._router.stack.forEach(function(route,i,routes) {
-        if (route.route && route.route.path === node.url && route.route.methods.post) {
+        if (route.route && route.route.path.match(/^\/node_red_contrib_spark_.*/)) {
           routes.splice(i,1);
-          node.log('Removed existing route for: ' + node.url);
+          node.log('Removed existing route for: ' + node.pathname);
         }
       });
 
@@ -276,8 +288,8 @@ module.exports = function(RED) {
     });
 
     // create route for this node
-    RED.httpNode.post(node.url, jsonParser, node.processRequest, node.processError);
-    node.log('Created new route for: ' + node.url);
+    RED.httpNode.post('/' + node.basename, jsonParser, node.processRequest, node.processError);
+    node.log('Created new route for: ' + node.pathname);
 
     // remove webhooks with same Target Url and then create a new one...
     node.removeWebhooks(function(err) {
