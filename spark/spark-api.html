@@ -269,62 +269,66 @@
         $('#node-input-method.form-tips div').replaceWith(tipText);
       }
 
-      // event: profile updated
-      $('#node-input-profileConfig').change(function() {
-        var selectedProfileConfig = $('#node-input-profileConfig option:selected').val();
+      // attach form event listeners
+      function attachEvents() {
+        // event: profile updated
+        $('#node-input-profileConfig').change(function() {
+          var selectedProfileConfig = $('#node-input-profileConfig option:selected').val();
 
-        if(selectedProfileConfig !== form.profileConfig) {
-          // reset
-          form.profileConfig = undefined;
-          form.name = '';
-        }
-
-        updateVisibility();
-      });
-
-      // event: resource updated
-      $('#node-input-resource').change(function() {
-        var selectedResource = $('#node-input-resource option:selected').val();
-
-        if(selectedResource !== form.resource) {
-          // update method
-          updateMethodList(selectedResource);
-          updateMethodTip();
-
-          // update resource tip
-          updateResourceTip(selectedResource);
-
-          // reset
-          form.resource = undefined;
-          form.name = '';
-        }
-
-        updateVisibility();
-      });
-
-      // event: method updated
-      $('#node-input-method').change(function() {
-        var selectedResource = $('#node-input-resource option:selected').val();
-        var selectedMethod = $('#node-input-method option:selected').val();
-
-        if(selectedMethod != form.method) {
-
-          // update method tip
-          if(selectedResource && selectedMethod) {
-            updateMethodTip(selectedResource, selectedMethod);
+          if(selectedProfileConfig !== form.profileConfig) {
+            // reset
+            form.profileConfig = undefined;
+            form.name = '';
           }
 
-          // reset
-          form.method = undefined;
-          form.name = '';
-        }
+          updateVisibility();
+        });
 
-        updateVisibility();
-      });
+        // event: resource updated
+        $('#node-input-resource').change(function() {
+          var selectedResource = $('#node-input-resource option:selected').val();
+
+          if(selectedResource !== form.resource) {
+            // update method
+            updateMethodList(selectedResource);
+            updateMethodTip();
+
+            // update resource tip
+            updateResourceTip(selectedResource);
+
+            // reset
+            form.resource = undefined;
+            form.name = '';
+          }
+
+          updateVisibility();
+        });
+
+        // event: method updated
+        $('#node-input-method').change(function() {
+          var selectedResource = $('#node-input-resource option:selected').val();
+          var selectedMethod = $('#node-input-method option:selected').val();
+
+          if(selectedMethod != form.method) {
+
+            // update method tip
+            if(selectedResource && selectedMethod) {
+              updateMethodTip(selectedResource, selectedMethod);
+            }
+
+            // reset
+            form.method = undefined;
+            form.name = '';
+          }
+
+          updateVisibility();
+        });
+      }
 
       // init form
       if(form.client) {
         populateForm(form.resource, form.method);
+        attachEvents();
       } else {
         $.getScript(httpAdminRoot + 'swagger-client-web.js', function() {
           // create swagger client
@@ -335,6 +339,7 @@
           .then(function(client) {
             form.client = client;
             populateForm(form.resource, form.method);
+            attachEvents();
           })
           .catch(function(err) {
             RED.notify('<strong>Error:</strong> Unable to load Spark definitions.', 'err');

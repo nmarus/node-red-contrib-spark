@@ -1,3 +1,7 @@
+#### 2.0.5: Maintenance Release
+
+  - Fixed issues with existing API Nodes not loading node form parameters on page refresh.  
+
 #### 2.0.4: Maintenance Release
 
   - Fixed issue #1. Custom httpAdminRoot or httpNodeRoot in settings will now work.
