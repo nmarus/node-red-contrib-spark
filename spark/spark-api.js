@@ -407,27 +407,31 @@ module.exports = function(RED) {
     }
   }
 
-  RED.httpAdmin.get('/swagger-client-web.js', function(req, res) {
-    var clientPath = path.resolve(__dirname, './swagger-client-web.js');
-    fs.readFile(clientPath, function(err, data) {
-      if(err) {
-        res.set('Content-Type', 'text/javascript').send('{ "error": "' + err.message + '", "message": "Error reading swagger-client-web.js" }');
-      } else {
-        res.set('Content-Type', 'text/javascript').send(data);
-      }
+  if(RED.settings.httpNodeRoot !== false) {
+    RED.httpNode.get('/swagger-client-web.js', function(req, res) {
+      var clientPath = path.resolve(__dirname, './swagger-client-web.js');
+      fs.readFile(clientPath, function(err, data) {
+        if(err) {
+          res.set('Content-Type', 'text/javascript').send('{ "error": "' + err.message + '", "message": "Error reading swagger-client-web.js" }');
+        } else {
+          res.set('Content-Type', 'text/javascript').send(data);
+        }
+      });
     });
-  });
 
-  RED.httpAdmin.get('/api/cisco_spark_v1.json', function(req, res) {
-    var apiPath = path.resolve(__dirname, './api/cisco_spark_v1.json');
-    fs.readFile(apiPath, function(err, data) {
-      if(err) {
-        res.set('Content-Type', 'text/javascript').send('{ "error": "' + err.message + '", "message": "Error reading api/cisco_spark_v1.json" }');
-      } else {
-        res.set('Content-Type', 'text/javascript').send(data);
-      }
+    RED.httpNode.get('/api/cisco_spark_v1.json', function(req, res) {
+      var apiPath = path.resolve(__dirname, './api/cisco_spark_v1.json');
+      fs.readFile(apiPath, function(err, data) {
+        if(err) {
+          res.set('Content-Type', 'text/javascript').send('{ "error": "' + err.message + '", "message": "Error reading api/cisco_spark_v1.json" }');
+        } else {
+          res.set('Content-Type', 'text/javascript').send(data);
+        }
+      });
     });
-  });
+  } else {
+    this.warn('httpNodeRoot is disabled in node-red settings');
+  }
 
   RED.nodes.registerType('Spark API', SparkApiNode);
 };

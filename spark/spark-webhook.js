@@ -299,16 +299,21 @@ module.exports = function(RED) {
 
   }
 
-  RED.httpAdmin.get('/webhook/cisco_spark_v1.json', function(req, res) {
-    var swaggerPath = path.resolve(__dirname, './webhook/cisco_spark_v1.json');
-    fs.readFile(swaggerPath, function(err, data) {
-      if(err) {
-        res.set('Content-Type', 'text/javascript').send('{ "error": "' + err.message + '", "message": "Error reading webhook/cisco_spark_v1.json" }');
-      } else {
-        res.set('Content-Type', 'text/javascript').send(data);
-      }
+  if(RED.settings.httpNodeRoot !== false) {
+    RED.httpNode.get('/webhook/cisco_spark_v1.json', function(req, res) {
+      var swaggerPath = path.resolve(__dirname, './webhook/cisco_spark_v1.json');
+      fs.readFile(swaggerPath, function(err, data) {
+        if(err) {
+          res.set('Content-Type', 'text/javascript').send('{ "error": "' + err.message + '", "message": "Error reading webhook/cisco_spark_v1.json" }');
+        } else {
+          res.set('Content-Type', 'text/javascript').send(data);
+        }
+      });
     });
-  });
+
+  } else {
+    this.warn('httpNodeRoot is disabled in node-red settings');
+  }
 
   RED.nodes.registerType('Spark Webhook', SparkWebhookNode);
 };

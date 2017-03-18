@@ -86,10 +86,10 @@
 </script>
 
 <script type="text/javascript">
-  var httpAdminRoot = window.location.pathname;
+  var httpNodeRoot = RED.settings.httpNodeRoot || '/';
 
   // define the local url where the API defnition can be found
-  var _apiUrl = window.location.origin + httpAdminRoot + 'api/cisco_spark_v1.json';
+  var _apiUrl = window.location.origin + httpNodeRoot + 'api/cisco_spark_v1.json';
 
   // register the spark api node
   RED.nodes.registerType('Spark API', {
@@ -330,7 +330,7 @@
         populateForm(form.resource, form.method);
         attachEvents();
       } else {
-        $.getScript(httpAdminRoot + 'swagger-client-web.js', function() {
+        $.getScript(httpNodeRoot + 'swagger-client-web.js', function() {
           // create swagger client
           new SwaggerClient({
             url: _apiUrl,

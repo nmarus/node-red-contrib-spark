@@ -2,6 +2,8 @@
 
   - Fixed issues with existing API Nodes not loading node form parameters on page refresh.
   - Attempt to fix why nodes are not showing on palette when viewing on nodered.org.
+  - Changed references from httpAdmin to httpNode.
+  - Fixed issue with webhook node nott showing form elements once a profile is created when webhook node is first node to be initialized.
 
 #### 2.0.4: Maintenance Release
 
