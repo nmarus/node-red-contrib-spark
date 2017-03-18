@@ -1,3 +1,9 @@
+#### 2.0.4: Maintenance Release
+
+  - Fixed issue #1. Custom httpAdminRoot or httpNodeRoot in settings will now work.
+  - Fixed potential race condition between page loading and swagger file being parsed.
+  - Tweaked webhook cleanup functions.
+
 #### 2.0.2: Maintenance Release
 
   - updated api node handling of empty responses
