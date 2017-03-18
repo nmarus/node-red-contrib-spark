@@ -407,8 +407,6 @@ module.exports = function(RED) {
     }
   }
 
-  RED.nodes.registerType('Spark API', SparkApiNode);
-
   RED.httpAdmin.get('/swagger-client-web.js', function(req, res) {
     var clientPath = path.resolve(__dirname, './swagger-client-web.js');
     fs.readFile(clientPath, function(err, data) {
@@ -430,4 +428,6 @@ module.exports = function(RED) {
       }
     });
   });
+
+  RED.nodes.registerType('Spark API', SparkApiNode);
 };

@@ -1,6 +1,7 @@
 #### 2.0.5: Maintenance Release
 
-  - Fixed issues with existing API Nodes not loading node form parameters on page refresh.  
+  - Fixed issues with existing API Nodes not loading node form parameters on page refresh.
+  - Attempt to fix why nodes are not showing on palette when viewing on nodered.org.
 
 #### 2.0.4: Maintenance Release
 

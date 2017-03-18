@@ -299,8 +299,6 @@ module.exports = function(RED) {
 
   }
 
-  RED.nodes.registerType('Spark Webhook', SparkWebhookNode);
-
   RED.httpAdmin.get('/webhook/cisco_spark_v1.json', function(req, res) {
     var swaggerPath = path.resolve(__dirname, './webhook/cisco_spark_v1.json');
     fs.readFile(swaggerPath, function(err, data) {
@@ -311,4 +309,6 @@ module.exports = function(RED) {
       }
     });
   });
+
+  RED.nodes.registerType('Spark Webhook', SparkWebhookNode);
 };
