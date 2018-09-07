@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "docs": "./node_modules/.bin/swagme cisco_spark_v1.json > README.md"
+  },
+  "name": "swagger-cisco-spark",
+  "author": "Nick Marus <nick.marus@cumberlandgroupit.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "swagme": "https://github.com/cumberlandgroup/swagme/tarball/master"
+  }
+}
