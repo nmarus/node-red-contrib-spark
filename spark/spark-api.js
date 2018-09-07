@@ -45,7 +45,7 @@ module.exports = function(RED) {
         processError(msg, err);
       });
     } else {
-      node.error('spark api token or swagger client invalid or not defined');
+      node.error('Webex Teams api token or swagger client invalid or not defined');
     }
   }
 
@@ -71,28 +71,28 @@ module.exports = function(RED) {
           status = {
             fill: 'yellow',
             shape: 'dot',
-            text: 'Spark API: warning'
+            text: 'Webex Teams API: warning'
           };
           break;
         case 'error':
           status = {
             fill: 'red',
             shape: 'dot',
-            text: 'Spark API: error'
+            text: 'Webex Teams API: error'
           };
           break;
         case 'input_error':
           status = {
             fill: 'red',
             shape: 'dot',
-            text: 'Spark API: invalid input'
+            text: 'Webex Teams API: invalid input'
           };
           break;
         default:
           status = {
             fill: 'blue',
             shape: 'ring',
-            text: 'Spark API: ready'
+            text: 'Webex Teams API: ready'
           };
           break;
       }
@@ -110,13 +110,13 @@ module.exports = function(RED) {
       var online = {
         fill: 'blue',
         shape: 'ring',
-        text: 'Spark API: online (' + node.reqCount + ')'
+        text: 'Webex Teams API: online (' + node.reqCount + ')'
       };
 
       var recieving = {
         fill: 'blue',
         shape: 'dot',
-        text: 'Spark API: online (' + node.reqCount + ')'
+        text: 'Webex Teams API: online (' + node.reqCount + ')'
       };
 
       if(node.reqReceiving) {
@@ -399,7 +399,7 @@ module.exports = function(RED) {
               return;
             }
 
-            // Send Spark API Request
+            // Send Webex Teams API Request
             sendRequest(msg, node.resource, node.method, params, opts, node.profileConfig.credentials.token, processResponse, processError);
           });
         }
@@ -433,5 +433,5 @@ module.exports = function(RED) {
     this.warn('httpNodeRoot is disabled in node-red settings');
   }
 
-  RED.nodes.registerType('Spark API', SparkApiNode);
+  RED.nodes.registerType('Webex Teams API', SparkApiNode);
 };

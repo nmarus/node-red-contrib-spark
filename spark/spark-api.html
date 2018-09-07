@@ -1,9 +1,9 @@
-<script type="text/x-red" data-template-name="Spark API">
+<script type="text/x-red" data-template-name="Webex Teams API">
   <div class="form-row">
     <label for="node-input-profileConfig"><i class="fa fa-lock"></i> Profile</label>
     <input type="text" id="node-input-profileConfig">
     <div class="form-tips" id="node-input-profileConfig" style="margin-top: 10px;">
-      <div>Select an existing Spark Credential Profile or create a new one...</div>
+      <div>Select an existing Webex Teams Credential Profile or create a new one...</div>
     </div>
   </div>
 
@@ -13,7 +13,7 @@
       <option selected disabled value="" >Choose a Resource</option>
     </select>
     <div class="form-tips" id="node-input-resource" style="margin-top: 10px;">
-      <div>Select one of the resources offered by the Spark API.</div>
+      <div>Select one of the resources offered by the Webex Teams API.</div>
     </div>
   </div>
 
@@ -23,7 +23,7 @@
       <option selected disabled value="">Choose a Method</option>
     </select>
     <div class="form-tips" id="node-input-method" style="margin-top: 10px;">
-      <div>Select one of the methods offered by the Spark API.</div>
+      <div>Select one of the methods offered by the Webex Teams API.</div>
     </div>
   </div>
 
@@ -35,15 +35,15 @@
   </div>
 </script>
 
-<script type="text/x-red" data-help-name="Spark API">
-  <p>The Spark API Node sends REST queries via messages received by the input
+<script type="text/x-red" data-help-name="Webex Teams API">
+  <p>The Webex Teams API Node sends REST queries via messages received by the input
     connector in the <code>msg.payload</code> object. Results of the API call
     are provided at the output in the <code>msg.payload</code> object.
   </p>
 
   <!-- Input -->
   <p><strong>Input</strong></p>
-  <p>The Spark API request is passed as a JSON object in
+  <p>The Webex Teams API request is passed as a JSON object in
     <code>msg.payload</code>. The <code>msg.payload</code> object can be an
     empty object or contain optional path, query-string, or body variables
     provided using <code>"key": "value"</code> object parameters. Depending on
@@ -51,16 +51,16 @@
     defined in either the <code>msg.payload</code> object or the
     <code>msg.payload.body</code> object.
   </p>
-  <p>Reference <a href="https://developer.ciscospark.com" target="_blank">
-    developer.ciscospark.com</a> for further details.
+  <p>Reference <a href="https://developer.webex.com" target="_blank">
+    developer.webex.com</a> for further details.
   </p>
 
   <!-- Output -->
   <p><strong>Output</strong></p>
-  <p>By convention, the output from the Spark API call will have a
+  <p>By convention, the output from the Webex Teams API call will have a
     <code>msg.payload</code> property. This contains the results of the API call
     in JSON format. The format of this JSON object will be the same as
-    documented at <a href="https://developer.ciscospark.com" target="_blank">developer.ciscospark.com</a>
+    documented at <a href="https://developer.webex.com" target="_blank">developer.webex.com</a>
     for the responses from the API call.
   </p>
   <p>Additionally the following are defined as part of the <code>msg</code>
@@ -72,7 +72,7 @@
   </p>
 
   <p><strong>Multiple Results</strong></p>
-  <p>If multiple records are returned from the Spark API Call, these are passed
+  <p>If multiple records are returned from the Webex Teams API Call, these are passed
     to the output as individual sequential messages. The <code>msg.parts</code>
     property is set appropriately for use with the <code>join</code> node if a
     single array payload is preferred.
@@ -91,14 +91,14 @@
   // define the local url where the API defnition can be found
   var _apiUrl = window.location.origin + httpNodeRoot + 'api/cisco_spark_v1.json';
 
-  // register the spark api node
-  RED.nodes.registerType('Spark API', {
+  // register the Webex Teams api node
+  RED.nodes.registerType('Webex Teams API', {
     category: 'cisco_spark',
     paletteLabel: 'api',
     color: '#C0DEED',
     defaults: {
       profileConfig: {
-        type: 'Spark Authentication',
+        type: 'Webex Teams Authentication',
         required: true
       },
       apiUrl: {
@@ -127,7 +127,7 @@
       if(this.resource && this.method) {
         return 'API → ' + this.resource + '.' + this.method;
       } else {
-        return 'Spark API Request';
+        return 'Webex Teams API Request';
       }
     },
     labelStyle: function() {
@@ -217,7 +217,7 @@
 
       // update the inline text tip for the seletected resource based on swaggger definition
       function updateResourceTip(selectedResource) {
-        var tipText = '<div>Select one of the resources offered by the Spark API.</div>';
+        var tipText = '<div>Select one of the resources offered by the Webex Teams API.</div>';
 
         if(form.client && selectedResource) {
           var apiResource = form.client.apis[selectedResource];
@@ -248,7 +248,7 @@
 
       // update the inline text tip for the seletected resource based on swaggger definition
       function updateMethodTip(selectedResource, selectedMethod) {
-        var tipText = '<div>Select one of the methods offered by the Spark API.</div>';
+        var tipText = '<div>Select one of the methods offered by the Webex Teams API.</div>';
 
         if(form.client && selectedResource && selectedMethod) {
           var apiResource = form.client.apis[selectedResource];
@@ -342,7 +342,7 @@
             attachEvents();
           })
           .catch(function(err) {
-            RED.notify('<strong>Error:</strong> Unable to load Spark definitions.', 'err');
+            RED.notify('<strong>Error:</strong> Unable to load Webex Teams definitions.', 'err');
           });
         });
       }

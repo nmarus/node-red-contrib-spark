@@ -1,17 +1,17 @@
-<script type="text/x-red" data-template-name="Spark Authentication">
+<script type="text/x-red" data-template-name="Webex Teams Authentication">
   <div class="form-row">
     <label for="node-config-input-name"><i class="fa fa-tag"></i> Profile Name</label>
-    <input type="text" id="node-config-input-name" placeholder="Spark">
+    <input type="text" id="node-config-input-name" placeholder="Webex Teams">
   </div>
 
   <div class="form-row" id="node-config-input-token-row">
     <label id="node-config-input-token-label" for="node-config-input-token"><i class="fa fa-lock"></i> Bearer Token</label>
-    <input type="text" id="node-config-input-token" placeholder="Spark Bearer Token">
+    <input type="text" id="node-config-input-token" placeholder="Webex Teams Bearer Token">
   </div>
 </script>
 
-<script type="text/x-red" data-help-name="Spark Authentication">
-  <p>The Cisco Spark API Authentication node defines the Bearer Token to be used
+<script type="text/x-red" data-help-name="Webex Teams Authentication">
+  <p>The Cisco Webex Teams API Authentication node defines the Bearer Token to be used
     for connecting to the API. The configurion profile allows multiple accounts
     or bots to be be managed in the same flow. The profiles are shared among the
     "api" and "webhook" nodes.
@@ -23,8 +23,8 @@
 </script>
 
 <script type="text/javascript">
-  // register the spark config node
-  RED.nodes.registerType('Spark Authentication', {
+  // register the Webex Teams config node
+  RED.nodes.registerType('Webex Teams Authentication', {
     category: 'config',
     defaults: {
       name: {
@@ -40,7 +40,7 @@
       }
     },
     label: function() {
-      return this.name ? this.name : 'Spark Authentication';
+      return this.name ? this.name : 'Webex Teams Authentication';
     }
   });
 </script>
