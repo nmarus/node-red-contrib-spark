@@ -81,5 +81,5 @@ module.exports = function(RED) {
     });
   }
 
-  RED.nodes.registerType('Spark Payload Parser', SparkParserNode);
+  RED.nodes.registerType('Webex Teams Payload Parser', SparkParserNode);
 };

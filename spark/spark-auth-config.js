@@ -7,7 +7,7 @@ module.exports = function(RED) {
     this.name = n.name;
   }
 
-  RED.nodes.registerType('Spark Authentication', SparkAuthConfigNode, {
+  RED.nodes.registerType('Webex Teams Authentication', SparkAuthConfigNode, {
     credentials: {
       token: {
         type: 'text'

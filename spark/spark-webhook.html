@@ -1,9 +1,9 @@
-<script type="text/x-red" data-template-name="Spark Webhook">
+<script type="text/x-red" data-template-name="Webex Teams Webhook">
   <div class="form-row">
     <label for="node-input-profileConfig"><i class="fa fa-lock"></i> Profile</label>
     <input type="text" id="node-input-profileConfig">
     <div class="form-tips" id="node-input-profileConfig" style="margin-top: 10px;">
-      <div>Select an existing Spark Credential Profile or create a new one...</div>
+      <div>Select an existing Webex Teams Credential Profile or create a new one...</div>
     </div>
   </div>
 
@@ -13,7 +13,7 @@
       <option selected disabled value="" >Choose a Resource</option>
     </select>
     <div class="form-tips" id="node-input-resource" style="margin-top: 10px;">
-      <div>Select Spark Webhook Resource.</div>
+      <div>Select Webex Teams Webhook Resource.</div>
     </div>
   </div>
 
@@ -23,7 +23,7 @@
       <option selected disabled value="" >Choose an Event</option>
     </select>
     <div class="form-tips" id="node-input-event" style="margin-top: 10px;">
-      <div>Select Spark Webhook Event.</div>
+      <div>Select Webex Teams Webhook Event.</div>
     </div>
   </div>
 
@@ -43,16 +43,16 @@
   </div>
 </script>
 
-<script type="text/x-red" data-help-name="Spark Webhook">
-  <p>The Spark Webhook Node is triggered when a resource event is matched. When
-    the node is deployed, it automatically creates the associated Cisco Spark
+<script type="text/x-red" data-help-name="Webex Teams Webhook">
+  <p>The Webex Teams Webhook Node is triggered when a resource event is matched. When
+    the node is deployed, it automatically creates the associated Cisco Webex Teams
     Webhook. When the Node is removed, the Webhook reference is automatically
-    removed in the Spark API.
+    removed in the Webex Teams API.
   </p>
 
   <!-- Footer -->
   <p>For further details and examples, reference the
-    <a href="https://github.com/nmarus/node-red-contrib-spark/blob/master/README.md" target="_blank">README.md</a>
+    <a href="https://github.com/cumberlandgroup/node-red-contrib-spark/blob/master/README.md" target="_blank">README.md</a>
     file in the github repository.
   </p>
 </script>
@@ -72,13 +72,13 @@
   };
 
   // register the spark webhook node
-  RED.nodes.registerType('Spark Webhook', {
-    category: 'cisco_spark',
+  RED.nodes.registerType('Webex Teams Webhook', {
+    category: 'cisco_webex_teams',
     paletteLabel: 'webhook',
     color: '#C0DEED',
     defaults: {
       profileConfig: {
-        type: 'Spark Authentication',
+        type: 'Webex Teams Authentication',
         required: true
       },
       resource: {
@@ -109,7 +109,7 @@
       if(this.resource && this.event) {
         return 'Webhook → ' + this.resource.toUpperCaseFirst() + '.' + this.event.toUpperCaseFirst();
       } else {
-        return 'Spark Webhook';
+        return 'Webex Teams Webhook';
       }
     },
     labelStyle: function() {
@@ -191,8 +191,8 @@
         var selectedResource = form.resource;
         var selectedEvent = form.event;
 
-        var enabledTip = '<div>Select an existing Spark Credential Profile or create a new one...</div>';
-        var disabledTip = '<div>Remove existing node to change Spark Credential Profile...</div>';
+        var enabledTip = '<div>Select an existing Webex Teams Credential Profile or create a new one...</div>';
+        var disabledTip = '<div>Remove existing node to change Webex Teams Credential Profile...</div>';
 
         // if(selectedProfileConfig !== '_ALL_') {
         if(selectedProfileConfig) {
@@ -220,7 +220,7 @@
 
       // update resource tip
       function updateResourceTip(selectedResource) {
-        var tipText = '<div>Select Spark Webhook Resource.</div>';
+        var tipText = '<div>Select Webex Teams Webhook Resource.</div>';
 
         if(selectedResource) {
           var apiResource = _hookDefUrlObj[selectedResource];
@@ -253,7 +253,7 @@
 
       // update event tip
       function updateEventTip(selectedResource, selectedEvent) {
-        var tipText = '<div>Select Spark Webhook Event.</div>';
+        var tipText = '<div>Select Webex Teams Webhook Event.</div>';
 
         if(selectedResource && selectedEvent) {
           var apiEvent = _hookDefUrlObj[selectedResource].events[selectedEvent];

@@ -47,7 +47,7 @@ module.exports = function(RED) {
     node.status({
       fill: 'blue',
       shape: 'ring',
-      text: 'Spark Webhook: ready'
+      text: 'Webex Teams Webhook: ready'
     });
 
     // remove webhooks
@@ -199,13 +199,13 @@ module.exports = function(RED) {
       var online = {
         fill: 'blue',
         shape: 'ring',
-        text: 'Spark Webhook: online (' + node.reqCount + ')'
+        text: 'Webex Teams Webhook: online (' + node.reqCount + ')'
       };
 
       var recieving = {
         fill: 'blue',
         shape: 'dot',
-        text: 'Spark Webhook: online (' + node.reqCount + ')'
+        text: 'Webex Teams Webhook: online (' + node.reqCount + ')'
       };
 
       if(node.reqReceiving) {
@@ -315,5 +315,5 @@ module.exports = function(RED) {
     this.warn('httpNodeRoot is disabled in node-red settings');
   }
 
-  RED.nodes.registerType('Spark Webhook', SparkWebhookNode);
+  RED.nodes.registerType('Webex Teams Webhook', SparkWebhookNode);
 };
