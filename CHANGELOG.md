@@ -2,6 +2,7 @@
 
   - Updated mentions of "Spark" to now refer to "Webex Teams"
   - Updated node icon to use the Webex Teams icon
+  - Updated README images to reflect branding updates
 
 #### 2.0.5: Maintenance Release
 
