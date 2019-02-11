@@ -53,7 +53,7 @@ module.exports = function(RED) {
     // remove webhooks
     node.removeWebhooks = function(callback) {
 
-      // if spark api token and webhook id are defined...
+      // if Webex Teams api token and webhook id are defined...
       if(node.profileConfig.credentials && node.profileConfig.credentials.token) {
 
         // clone module request template
@@ -100,7 +100,7 @@ module.exports = function(RED) {
         webhookId = id;
       }
 
-      // if spark api token and webhook id are defined...
+      // if Webex Teams api token and webhook id are defined...
       if(node.profileConfig.credentials && node.profileConfig.credentials.token && webhookId) {
 
         // clone module request template
@@ -141,7 +141,7 @@ module.exports = function(RED) {
     // create new webhook
     node.createWebhook = function() {
 
-      // if spark api token and webhook target are defined...
+      // if Webex Teams api token and webhook target are defined...
       if(node.profileConfig.credentials && node.profileConfig.credentials.token && node.webhookTarget) {
 
         // clone module request template
@@ -182,7 +182,7 @@ module.exports = function(RED) {
         });
       }
 
-      // else, spark api token not defined...
+      // else, Webex Teams api token not defined...
       else {
         var errorMsg = 'api token or webhookTarget not defined';
         node.error('error: ' + errorMsg);

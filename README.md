@@ -104,7 +104,7 @@ The following object would be sent in the `msg.payload` input to a Webex Teams A
 
 ```json
 {
-  "roomId": "someWebex TeamsRoomIdString",
+  "roomId": "someRoomIdString",
   "body": {
     "title": "My Renamed Room"
   }
@@ -118,7 +118,7 @@ The following object would be sent in the `msg.payload` input to a Webex Teams A
 ```json
 {
   "body": {
-    "roomId": "someWebex TeamsRoomIdString",
+    "roomId": "someRoomIdString",
     "text": "Hello World!"
   }
 }
@@ -131,7 +131,7 @@ The following object would be sent in the `msg.payload` input to a Webex Teams A
 ```json
 {
   "body": {
-    "roomId": "someWebex TeamsRoomIdString",
+    "roomId": "someRoomIdString",
     "personEmail": "person@emaple.com"
   }
 }
