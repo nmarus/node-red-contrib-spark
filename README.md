@@ -1,6 +1,6 @@
 # node-red-contrib-spark
 
-[Node-RED](http://nodered.org) Nodes to integrate with the [Cisco Spark API](https://developer.ciscospark.com).
+[Node-RED](http://nodered.org) Nodes to integrate with the [Cisco Webex Teams API](https://developer.webex.com).
 
 Version 2.0.0 [(changelog)](https://github.com/cumberlandgroup/node-red-contrib-spark/blob/master/CHANGELOG.md)
 
@@ -8,10 +8,10 @@ Version 2.0.0 [(changelog)](https://github.com/cumberlandgroup/node-red-contrib-
 
 ### Nodes
 
-* **api** - This Node receives queries on the input that are then sent to the Spark API. The results are provided at the output.
-* **webhook** - This Node creates, removes, and manages the Webhook features of the Spark API. Once deployed, and subsequently triggered, the contents of the notification will be sent to the output of this Node.
+* **api** - This Node receives queries on the input that are then sent to the Webex Teams API. The results are provided at the output.
+* **webhook** - This Node creates, removes, and manages the Webhook features of the Webex Teams API. Once deployed, and subsequently triggered, the contents of the notification will be sent to the output of this Node.
 * **parser** - This is a utility Node that accepts input from the output of either the API or Webhook Node.
-* **auth** - This is a Config Node that holds the credential Bearer Token for the Spark API. Once initially defined, either under the Api or Webhook Node, it will be available to select on all other Api and Webhook Nodes that are created. You can define multiple Auth profiles so as to work with different Spark Accounts or Bots within the same flow.
+* **auth** - This is a Config Node that holds the credential Bearer Token for the Webex Teams API. Once initially defined, either under the Api or Webhook Node, it will be available to select on all other Api and Webhook Nodes that are created. You can define multiple Auth profiles so as to work with different Webex Teams Accounts or Bots within the same flow.
 
 ### Install
 
@@ -56,17 +56,17 @@ npm install node-red-contrib-spark
 
 ## API Node
 
-The Spark API Node sends REST queries via messages received by the input connector in the `msg.payload` object. Results of the API call are provided at the output in the `msg.payload` object. If multiple records are returned from the Spark API Call, these are passed to the output as individual sequential messages. The `msg.parts` property is set appropriately for use with the `join` node if a single array payload is preferred.
+The Webex Teams API Node sends REST queries via messages received by the input connector in the `msg.payload` object. Results of the API call are provided at the output in the `msg.payload` object. If multiple records are returned from the Webex Teams API Call, these are passed to the output as individual sequential messages. The `msg.parts` property is set appropriately for use with the `join` node if a single array payload is preferred.
 
 ![](https://github.com/cumberlandgroup/node-red-contrib-spark/raw/master/images/api-node.jpg)
 
 #### Module Input
 
-The Spark API request is passed as a JSON object in `msg.payload`. The `msg.payload` object can be an empty object `{}` or contain optional path, query-string, or body variables provided using `"key": "value"` object parameters. Depending on the particular API method, the `"key": "value"` properties are defined in either the `msg.payload` object or the `msg.payload.body` object.
+The Webex Teams API request is passed as a JSON object in `msg.payload`. The `msg.payload` object can be an empty object `{}` or contain optional path, query-string, or body variables provided using `"key": "value"` object parameters. Depending on the particular API method, the `"key": "value"` properties are defined in either the `msg.payload` object or the `msg.payload.body` object.
 
 #### Module Output
 
-By convention, the output from the Spark API call will have a `msg.payload` property. This contains the results of the API call in JSON format. The format of this JSON object will be the same as documented at [developer.ciscospark.com](https://developer.ciscospark.com) for the responses from the API call.
+By convention, the output from the Webex Teams API call will have a `msg.payload` property. This contains the results of the API call in JSON format. The format of this JSON object will be the same as documented at [developer.webex.com](https://developer.webex.com) for the responses from the API call.
 
 Additionally the following are defined as part of the msg object:
 
@@ -74,11 +74,11 @@ Additionally the following are defined as part of the msg object:
 * `msg.headers` - response headers object
 
 #### Multiple Results
-If multiple records are returned from the Spark API Call, these are passed to the output as individual sequential messages. The `msg.parts` property is set appropriately for use with the `join` node if a single array payload is preferred.
+If multiple records are returned from the Webex Teams API Call, these are passed to the output as individual sequential messages. The `msg.parts` property is set appropriately for use with the `join` node if a single array payload is preferred.
 
 **Example: Get Person by Email**
 
-The following object would be sent in the `msg.payload` input to a Spark API Node setup for `People.getPeople`:
+The following object would be sent in the `msg.payload` input to a Webex Teams API Node setup for `People.getPeople`:
 
 ```json
 {
@@ -88,7 +88,7 @@ The following object would be sent in the `msg.payload` input to a Spark API Nod
 
 **Example: Get Rooms by Type**
 
-The following object would be sent in the `msg.payload` input to a Spark API Node setup for `Rooms.getRooms`:
+The following object would be sent in the `msg.payload` input to a Webex Teams API Node setup for `Rooms.getRooms`:
 
 ```json
 {
@@ -100,11 +100,11 @@ The following object would be sent in the `msg.payload` input to a Spark API Nod
 
 **Example: Update a Room Title**
 
-The following object would be sent in the `msg.payload` input to a Spark API Node setup for `Rooms.updateRoom`:
+The following object would be sent in the `msg.payload` input to a Webex Teams API Node setup for `Rooms.updateRoom`:
 
 ```json
 {
-  "roomId": "someSparkRoomIdString",
+  "roomId": "someRoomIdString",
   "body": {
     "title": "My Renamed Room"
   }
@@ -113,12 +113,12 @@ The following object would be sent in the `msg.payload` input to a Spark API Nod
 
 **Example: Create a New Message**
 
-The following object would be sent in the `msg.payload` input to a Spark API Node setup for `Messages.createMessage`:
+The following object would be sent in the `msg.payload` input to a Webex Teams API Node setup for `Messages.createMessage`:
 
 ```json
 {
   "body": {
-    "roomId": "someSparkRoomIdString",
+    "roomId": "someRoomIdString",
     "text": "Hello World!"
   }
 }
@@ -126,12 +126,12 @@ The following object would be sent in the `msg.payload` input to a Spark API Nod
 
 **Example: Add Person by Email to a Room**
 
-The following object would be sent in the `msg.payload` input to a Spark API Node setup for `Memberships.createMembership`:
+The following object would be sent in the `msg.payload` input to a Webex Teams API Node setup for `Memberships.createMembership`:
 
 ```json
 {
   "body": {
-    "roomId": "someSparkRoomIdString",
+    "roomId": "someRoomIdString",
     "personEmail": "person@emaple.com"
   }
 }
@@ -139,13 +139,13 @@ The following object would be sent in the `msg.payload` input to a Spark API Nod
 
 #### Configuration Options
 
-* **Profile** - The Spark credential profile to use with this Node.
-* **Resource** - The Spark resources for the API action.
-* **Method** - The specific method available to the selected Spark resource.
+* **Profile** - The Webex Teams credential profile to use with this Node.
+* **Resource** - The Webex Teams resources for the API action.
+* **Method** - The specific method available to the selected Webex Teams resource.
 
 ## Webhook Node
 
-The Spark Webhook Node is triggered when a resource event is matched. When the Node is deployed, it automatically creates the associated Cisco Spark Webhook. When the Node is removed, the Webhook reference is automatically removed in the Spark API.
+The Webex Teams Webhook Node is triggered when a resource event is matched. When the Node is deployed, it automatically creates the associated Cisco Webex Teams Webhook. When the Node is removed, the Webhook reference is automatically removed in the Webex Teams API.
 
 ![](https://github.com/cumberlandgroup/node-red-contrib-spark/raw/master/images/webhook-node.jpg)
 
@@ -173,14 +173,14 @@ The Spark Webhook Node is triggered when a resource event is matched. When the N
 
 #### Configuration Options
 
-* **Profile** - The Spark credential profile to use with this Node.
-* **Resource** - The Spark resource to bind a Webhook to.
+* **Profile** - The Webex Teams credential profile to use with this Node.
+* **Resource** - The Webex Teams resource to bind a Webhook to.
 * **Event** - The specific event of the resource selected.
-* **Host** - The base URL that is used to build the Webhook in the Spark API. This should be reachable from the internet and follow the format of `http(s)://domain.tld:<port>`. The Webhook Node will dynamicly publish webroutes under this URL as `/node_red_contrib_spark_<node-uuid>`. *Note that the Webhook is automatically created in the Spark API after deploying and automatically removed if the Node is deleted and the flow re-deployed. If you have defined the httpNodeRoot setting in Node-Red, the webhook target URL will be created under that path. This should be mostly transparent as this node will create and remove webhooks from the Spark API as the nodes are added and removed from the workspace. If you shutdown Node-Red with a webhook deployed on the workspace, this webhook will persist in the Spark API and will need to be manually removed.*
+* **Host** - The base URL that is used to build the Webhook in the Webex Teams API. This should be reachable from the internet and follow the format of `http(s)://domain.tld:<port>`. The Webhook Node will dynamically publish web routes under this URL as `/node_red_contrib_spark_<node-uuid>`. *Note that the Webhook is automatically created in the Webex Teams API after deploying and automatically removed if the Node is deleted and the flow re-deployed. If you have defined the httpNodeRoot setting in Node-Red, the webhook target URL will be created under that path. This should be mostly transparent as this node will create and remove webhooks from the Webex Teams API as the nodes are added and removed from the workspace. If you shutdown Node-Red with a webhook deployed on the workspace, this webhook will persist in the Webex Teams API and will need to be manually removed.*
 
 ## Parser Node
 
-The Spark Parse Node allows parsing of specific properties from the JSON `msg.payload` received from either the "Spark Webhook Node" or the "Spark API Node".
+The Webex Teams Parse Node allows parsing of specific properties from the JSON `msg.payload` received from either the "Webex Teams Webhook Node" or the "Webex Teams API Node".
 
 ![](https://github.com/cumberlandgroup/node-red-contrib-spark/raw/master/images/parser-node.jpg)
 
@@ -192,7 +192,7 @@ Define each *"property"* to parse from the inbound `msg.payload`. Optionally, de
 
 ## License
 
-MIT License Copyright (c) 2016 Nicholas Marus
+MIT License Copyright (c) 2019 Cumberland Group
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

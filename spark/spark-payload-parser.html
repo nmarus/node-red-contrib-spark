@@ -1,4 +1,4 @@
-<script type="text/x-red" data-template-name="Spark Payload Parser">
+<script type="text/x-red" data-template-name="Webex Teams Payload Parser">
   <div class="form-row" style="margin-bottom:0;">
       <label><i class="fa fa-list"></i> Parser</span></label>
   </div>
@@ -15,10 +15,10 @@
   </div>
 </script>
 
-<script type="text/x-red" data-help-name="Spark Payload Parser">
-  <p>The Spark Parse Node allows parsing of specific properties from the JSON
-    <code>msg.payload</code> received from either the "Spark Webhook Node" or
-    the "Spark API Node".
+<script type="text/x-red" data-help-name="Webex Teams Payload Parser">
+  <p>The Webex Teams Parse Node allows parsing of specific properties from the JSON
+    <code>msg.payload</code> received from either the "Webex Teams Webhook Node" or
+    the "Webex Teams API Node".
   </p>
 
   <!-- Configuration -->
@@ -37,28 +37,28 @@
 
   <!-- Input -->
   <p><strong>Input</strong></p>
-  <p>This Node accepts input from either the "Spark API Node" or
-    "Spark Webhook Node".
+  <p>This Node accepts input from either the "Webex Teams API Node" or
+    "Webex Teams Webhook Node".
   </p>
 
   <!-- Output -->
   <p><strong>Output</strong></p>
-  <p>By convention, the output from the Spark Parser will have a
+  <p>By convention, the output from the Webex Teams Parser will have a
     <code>msg.payload</code> property. This contains a new JSON object with only
     the properties defined (and optionally remapped) in the Node configuration.
   </p>
 
   <!-- Footer -->
   <p>For further details and examples, reference the
-    <a href="https://github.com/nmarus/node-red-contrib-spark/blob/master/README.md" target="_blank">README.md</a>
+    <a href="https://github.com/cumberlandgroup/node-red-contrib-spark/blob/master/README.md" target="_blank">README.md</a>
     file in the github repository.
   </p>
 </script>
 
 <script type="text/javascript">
-  // register the spark api node
-  RED.nodes.registerType('Spark Payload Parser', {
-    category: 'cisco_spark',
+  // register the Webex Teams api node
+  RED.nodes.registerType('Webex Teams Payload Parser', {
+    category: 'cisco_webex_teams',
     paletteLabel: 'parser',
     color: '#C0DEED',
     defaults: {
@@ -84,7 +84,7 @@
         }
         return 'Parser → ' + label.join(', ');
       } else {
-        return "Spark Payload Parser";
+        return "Webex Teams Payload Parser";
       }
     },
     labelStyle: function() {

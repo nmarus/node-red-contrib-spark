@@ -47,13 +47,13 @@ module.exports = function(RED) {
     node.status({
       fill: 'blue',
       shape: 'ring',
-      text: 'Spark Webhook: ready'
+      text: 'Webex Teams Webhook: ready'
     });
 
     // remove webhooks
     node.removeWebhooks = function(callback) {
 
-      // if spark api token and webhook id are defined...
+      // if Webex Teams api token and webhook id are defined...
       if(node.profileConfig.credentials && node.profileConfig.credentials.token) {
 
         // clone module request template
@@ -100,7 +100,7 @@ module.exports = function(RED) {
         webhookId = id;
       }
 
-      // if spark api token and webhook id are defined...
+      // if Webex Teams api token and webhook id are defined...
       if(node.profileConfig.credentials && node.profileConfig.credentials.token && webhookId) {
 
         // clone module request template
@@ -141,7 +141,7 @@ module.exports = function(RED) {
     // create new webhook
     node.createWebhook = function() {
 
-      // if spark api token and webhook target are defined...
+      // if Webex Teams api token and webhook target are defined...
       if(node.profileConfig.credentials && node.profileConfig.credentials.token && node.webhookTarget) {
 
         // clone module request template
@@ -182,7 +182,7 @@ module.exports = function(RED) {
         });
       }
 
-      // else, spark api token not defined...
+      // else, Webex Teams api token not defined...
       else {
         var errorMsg = 'api token or webhookTarget not defined';
         node.error('error: ' + errorMsg);
@@ -199,13 +199,13 @@ module.exports = function(RED) {
       var online = {
         fill: 'blue',
         shape: 'ring',
-        text: 'Spark Webhook: online (' + node.reqCount + ')'
+        text: 'Webex Teams Webhook: online (' + node.reqCount + ')'
       };
 
       var recieving = {
         fill: 'blue',
         shape: 'dot',
-        text: 'Spark Webhook: online (' + node.reqCount + ')'
+        text: 'Webex Teams Webhook: online (' + node.reqCount + ')'
       };
 
       if(node.reqReceiving) {
@@ -315,5 +315,5 @@ module.exports = function(RED) {
     this.warn('httpNodeRoot is disabled in node-red settings');
   }
 
-  RED.nodes.registerType('Spark Webhook', SparkWebhookNode);
+  RED.nodes.registerType('Webex Teams Webhook', SparkWebhookNode);
 };

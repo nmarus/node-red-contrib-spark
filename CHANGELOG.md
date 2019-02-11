@@ -1,3 +1,9 @@
+#### 2.1.0: Branding Update
+
+  - Updated mentions of "Spark" to now refer to "Webex Teams"
+  - Updated node icon to use the Webex Teams icon
+  - Updated README images to reflect branding updates
+
 #### 2.0.5: Maintenance Release
 
   - Fixed issues with existing API Nodes not loading node form parameters on page refresh.
