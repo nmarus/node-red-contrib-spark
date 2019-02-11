@@ -1,0 +1,2051 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Webex Teams API",
+        "version": "1.2.6",
+        "description": "Cisco Webex Teams API version 1 Swagger Definition File.",
+        "termsOfService": "https://developer.webex.com/tos.html"
+    },
+    "externalDocs": {
+        "url": "https://developer.webex.com"
+    },
+    "host": "api.ciscospark.com",
+    "schemes": [
+        "https"
+    ],
+    "basePath": "/v1",
+    "produces": [
+        "application/json"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "securityDefinitions": {
+        "Token": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Swagger Authentication with Bearer Token requires Token to be entered as 'Bearer <token>'."
+        }
+    },
+    "security": [
+        {
+            "Token": []
+        }
+    ],
+    "tags": [
+        {
+            "name": "people",
+            "description": "Query, Create, Update, and Delete Webex Teams Users."
+        },
+        {
+            "name": "rooms",
+            "description": "Query, Create, Update, and Delete Webex Teams Rooms."
+        },
+        {
+            "name": "memberships",
+            "description": "Query, Create, Update, and Delete Webex Teams Room Memberships."
+        },
+        {
+            "name": "messages",
+            "description": "Query, Create, and Delete Webex Teams Messages."
+        },
+        {
+            "name": "teams",
+            "description": "Query, Create, Update, and Delete Webex Teams Teams."
+        },
+        {
+            "name": "teamMemberships",
+            "description": "Query, Create, Update, and Delete Webex Teams Team Memberships."
+        },
+        {
+            "name": "webhooks",
+            "description": "Query, Create, Update, and Delete Webex Teams Webhooks."
+        },
+        {
+            "name": "organizations",
+            "description": "Query Organizations."
+        },
+        {
+            "name": "licenses",
+            "description": "Query Licenses."
+        },
+        {
+            "name": "roles",
+            "description": "Query Roles."
+        },
+        {
+            "name": "contents",
+            "description": "Retrieve Files."
+        }
+    ],
+    "paths": {
+        "/people/": {
+            "get": {
+                "operationId": "getPeople",
+                "summary": "Search people by email address or display name.",
+                "description": "Search people by email address or display name. Returns array of Person objects.",
+                "tags": [
+                    "people"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "description": "Person ID.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "Email address.",
+                        "required": false,
+                        "type": "string",
+                        "format": "email"
+                    },
+                    {
+                        "name": "displayName",
+                        "in": "query",
+                        "description": "Person display name.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/Max"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/People"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "addPerson",
+                "summary": "Create a Person for a given organization.",
+                "description": "Create a Person for a given organization. Returns Person object. Only an admin can create a new user account.",
+                "tags": [
+                    "people"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "emails",
+                                "displayName"
+                            ],
+                            "properties": {
+                                "emails": {
+                                    "description": "Array of emails.",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                },
+                                "displayName": {
+                                    "description": "Person display name.",
+                                    "type": "string"
+                                },
+                                "firstName": {
+                                    "description": "Person first name.",
+                                    "type": "string"
+                                },
+                                "lastName": {
+                                    "description": "Person last name.",
+                                    "type": "string"
+                                },
+                                "avatar": {
+                                    "description": "Person avatar URL.",
+                                    "type": "string",
+                                    "format": "url"
+                                },
+                                "orgId": {
+                                    "description": "Organization ID of Person.",
+                                    "type": "string"
+                                },
+                                "roles": {
+                                    "description": "Array of Role IDs.",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "licenses": {
+                                    "description": "Array of License IDs.",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Person"
+                    }
+                }
+            }
+        },
+        "/people/{personId}": {
+            "get": {
+                "operationId": "getPerson",
+                "summary": "Shows details for a person.",
+                "description": "Shows details for a person by ID. Returns Person object.",
+                "tags": [
+                    "people"
+                ],
+                "parameters": [
+                    {
+                        "name": "personId",
+                        "in": "path",
+                        "description": "Person ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Person"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "updatePerson",
+                "summary": "Update details for a person.",
+                "description": "Update details for a person by ID. Returns Person object. Only an admin can update person details.",
+                "tags": [
+                    "people"
+                ],
+                "parameters": [
+                    {
+                        "name": "personId",
+                        "in": "path",
+                        "description": "Person ID.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "emails",
+                                "displayName",
+                                "orgId",
+                                "roles",
+                                "licenses"
+                            ],
+                            "properties": {
+                                "emails": {
+                                    "description": "Array of emails.",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                },
+                                "displayName": {
+                                    "description": "Person display name.",
+                                    "type": "string"
+                                },
+                                "firstName": {
+                                    "description": "Person first name.",
+                                    "type": "string"
+                                },
+                                "lastName": {
+                                    "description": "Person last name.",
+                                    "type": "string"
+                                },
+                                "avatar": {
+                                    "description": "URL of Person avatar.",
+                                    "type": "string",
+                                    "format": "url"
+                                },
+                                "orgId": {
+                                    "description": "Organization ID of Person.",
+                                    "type": "string"
+                                },
+                                "roles": {
+                                    "description": "Array of Role IDs of Person.",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                },
+                                "licenses": {
+                                    "description": "Array of License IDs of Person.",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Person"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deletePerson",
+                "summary": "Delete a Person.",
+                "description": "Delete a Person by ID. Only an admin can remove a person.",
+                "tags": [
+                    "people"
+                ],
+                "parameters": [
+                    {
+                        "name": "personId",
+                        "in": "path",
+                        "description": "Person ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful response."
+                    }
+                }
+            }
+        },
+        "/people/me": {
+            "get": {
+                "operationId": "getMe",
+                "summary": "Get the authenticated user.",
+                "description": "Get the authenticated user. Returns a Person object.",
+                "tags": [
+                    "people"
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Person"
+                    }
+                }
+            }
+        },
+        "/rooms/": {
+            "get": {
+                "operationId": "getRooms",
+                "summary": "Get Rooms of which authenticated user belongs.",
+                "description": "Get Rooms of which authenticated user belongs. Returns array of Room objects. Optionally filter by Team ID or Room type. Room type can either be 'group' or 'direct'.",
+                "tags": [
+                    "rooms"
+                ],
+                "parameters": [
+                    {
+                        "name": "teamId",
+                        "in": "query",
+                        "description": "Team ID.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Room type.",
+                        "required": false,
+                        "type": "string",
+                        "pattern": "(group|direct)"
+                    },
+                    {
+                        "$ref": "#/parameters/Max"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Rooms"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createRoom",
+                "summary": "Create a Room.",
+                "description": "Create a room. Returns Room object. The authenticated user is automatically added as a member of the room. See the Memberships API to learn how to add more people to the room.",
+                "tags": [
+                    "rooms"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "title"
+                            ],
+                            "properties": {
+                                "title": {
+                                    "description": "Room title.",
+                                    "type": "string"
+                                },
+                                "teamId": {
+                                    "description": "Room Team ID.",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Room"
+                    }
+                }
+            }
+        },
+        "/rooms/{roomId}": {
+            "get": {
+                "operationId": "getRoom",
+                "summary": "Shows details for a specific Room.",
+                "description": "Shows details for a specific Room by ID. Returns Room object by ID Query.",
+                "tags": [
+                    "rooms"
+                ],
+                "parameters": [
+                    {
+                        "name": "roomId",
+                        "in": "path",
+                        "description": "Room ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Room"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "updateRoom",
+                "summary": "Update a Room.",
+                "description": "Update a Room by ID. Returns Room object.",
+                "tags": [
+                    "rooms"
+                ],
+                "parameters": [
+                    {
+                        "name": "roomId",
+                        "in": "path",
+                        "description": "Room ID.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "title"
+                            ],
+                            "properties": {
+                                "title": {
+                                    "description": "Room title.",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Room"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteRoom",
+                "summary": "Delete a Room.",
+                "description": "Delete a room, by ID.",
+                "tags": [
+                    "rooms"
+                ],
+                "parameters": [
+                    {
+                        "name": "roomId",
+                        "in": "path",
+                        "description": "Room ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful response"
+                    }
+                }
+            }
+        },
+        "/memberships/": {
+            "get": {
+                "operationId": "getMemberships",
+                "summary": "Get all room memberships.",
+                "description": "Get all room memberships. Returns array of Membership objects. By default, lists memberships for rooms to which the authenticated user belongs. Optionally can be targeted at a specific Room ID. Optionally can be filtered by either personId or personEmail.",
+                "tags": [
+                    "memberships"
+                ],
+                "parameters": [
+                    {
+                        "name": "roomId",
+                        "in": "query",
+                        "description": "Room ID.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "personId",
+                        "in": "query",
+                        "description": "Person ID.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "personEmail",
+                        "in": "query",
+                        "description": "Person email.",
+                        "required": false,
+                        "type": "string",
+                        "format": "email"
+                    },
+                    {
+                        "$ref": "#/parameters/Max"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Memberships"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createMembership",
+                "summary": "Create a Room Membership.",
+                "description": "Create a Room Membership in a Room by ID. Specifcy the membership target by Person ID or Email. Returns Membership object.",
+                "tags": [
+                    "memberships"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "roomId"
+                            ],
+                            "properties": {
+                                "roomId": {
+                                    "description": "Room ID.",
+                                    "type": "string"
+                                },
+                                "personId": {
+                                    "description": "Person ID.",
+                                    "type": "string"
+                                },
+                                "personEmail": {
+                                    "description": "Person email.",
+                                    "type": "string",
+                                    "format": "email"
+                                },
+                                "isModerator": {
+                                    "description": "Membership is a moderator.",
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Membership"
+                    }
+                }
+            }
+        },
+        "/memberships/{membershipId}": {
+            "get": {
+                "operationId": "getMembership",
+                "summary": "Get details for a membership.",
+                "description": "Get details for a membership by ID. Returns Membership object.",
+                "tags": [
+                    "memberships"
+                ],
+                "parameters": [
+                    {
+                        "name": "membershipId",
+                        "in": "path",
+                        "description": "Membership ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Membership"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "updateMembership",
+                "summary": "Update a Membership.",
+                "description": "Update a Membership by ID. Returns Membership object.",
+                "tags": [
+                    "memberships"
+                ],
+                "parameters": [
+                    {
+                        "name": "membershipId",
+                        "in": "path",
+                        "description": "Membership ID.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "isModerator"
+                            ],
+                            "properties": {
+                                "isModerator": {
+                                    "description": "Membership is a moderator.",
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Membership"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteMembership",
+                "summary": "Delete a Membership.",
+                "description": "Delete a membership by ID.",
+                "tags": [
+                    "memberships"
+                ],
+                "parameters": [
+                    {
+                        "name": "membershipId",
+                        "in": "path",
+                        "description": "Membership ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful response."
+                    }
+                }
+            }
+        },
+        "/messages/": {
+            "get": {
+                "operationId": "getMessages",
+                "summary": "Get all messages in a room.",
+                "description": "Get all messages in a room by ID. Returns array of Message objects.",
+                "tags": [
+                    "messages"
+                ],
+                "parameters": [
+                    {
+                        "name": "roomId",
+                        "in": "query",
+                        "description": "Room ID.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "mentionedPeople",
+                        "in": "query",
+                        "description": "Person ID.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "name": "before",
+                        "in": "query",
+                        "description": "Marker date/time.",
+                        "required": false,
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    {
+                        "name": "beforeMessage",
+                        "in": "query",
+                        "description": "Marker Message ID.",
+                        "required": false,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/Max"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Messages"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createMessage",
+                "summary": "Create a Message.",
+                "description": "Create a Message. Returns Message object. Optionally, specify the message as text or markdown and include an attachment.",
+                "tags": [
+                    "messages"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "roomId": {
+                                    "description": "Room ID.",
+                                    "type": "string"
+                                },
+                                "toPersonId": {
+                                    "description": "Person ID.",
+                                    "type": "string"
+                                },
+                                "toPersonEmail": {
+                                    "description": "Person Email.",
+                                    "type": "string",
+                                    "format": "email"
+                                },
+                                "text": {
+                                    "description": "Message as plain text.",
+                                    "type": "string"
+                                },
+                                "markdown": {
+                                    "description": "Message as markdown.",
+                                    "type": "string"
+                                },
+                                "html": {
+                                    "description": "Message as html.",
+                                    "type": "string"
+                                },
+                                "files": {
+                                    "description": "File URL.",
+                                    "type": "string",
+                                    "format": "url"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Message"
+                    }
+                }
+            }
+        },
+        "/messages/{messageId}": {
+            "get": {
+                "operationId": "getMessage",
+                "summary": "Get a Message.",
+                "description": "Get a Message by ID. Returns Message object.",
+                "tags": [
+                    "messages"
+                ],
+                "parameters": [
+                    {
+                        "name": "messageId",
+                        "in": "path",
+                        "description": "Message ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Message"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteMessage",
+                "summary": "Delete a Message.",
+                "description": "Deletes a message by ID.",
+                "tags": [
+                    "messages"
+                ],
+                "parameters": [
+                    {
+                        "name": "messageId",
+                        "in": "path",
+                        "description": "Message ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful response."
+                    }
+                }
+            }
+        },
+        "/teams/": {
+            "get": {
+                "operationId": "getTeams",
+                "summary": "Get Teams.",
+                "description": "Get Teams to which the authenticated user belongs. Returns array of Team objects.",
+                "tags": [
+                    "teams"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/Max"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Teams"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createTeam",
+                "summary": "Create a Team.",
+                "description": "Create a Team. Returns Team object. The authenticated user is automatically added as a member of the team. See the Team Memberships API to learn how to add more people to the team.",
+                "tags": [
+                    "teams"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "name"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "description": "Team name.",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Team"
+                    }
+                }
+            }
+        },
+        "/teams/{teamId}": {
+            "get": {
+                "operationId": "getTeam",
+                "summary": "Get Team.",
+                "description": "Get Team by ID. Returns Team object.",
+                "tags": [
+                    "teams"
+                ],
+                "parameters": [
+                    {
+                        "name": "teamId",
+                        "in": "path",
+                        "description": "Team ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Team"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "updateTeam",
+                "summary": "Update a Team.",
+                "description": "Update a Team by ID. Returns Team object.",
+                "tags": [
+                    "teams"
+                ],
+                "parameters": [
+                    {
+                        "name": "teamId",
+                        "in": "path",
+                        "description": "Team ID.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "name"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "description": "Team name.",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Team"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteTeam",
+                "summary": "Delete a Team.",
+                "description": "Delete a team by ID.",
+                "tags": [
+                    "teams"
+                ],
+                "parameters": [
+                    {
+                        "name": "teamId",
+                        "in": "path",
+                        "description": "Team ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful response."
+                    }
+                }
+            }
+        },
+        "/team/memberships/": {
+            "get": {
+                "operationId": "getTeamMemberships",
+                "summary": "Get Team Memberships.",
+                "description": "Get Team Memberships by ID. Returns array of TeamMembership objects. If Team ID is not specified, lists memberships for teams to which the authenticated user belongs.",
+                "tags": [
+                    "teamMemberships"
+                ],
+                "parameters": [
+                    {
+                        "name": "teamId",
+                        "in": "query",
+                        "description": "Team ID.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/Max"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/TeamMemberships"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createTeamMembership",
+                "summary": "Create a Team Membership. Returns TeamMembership object.",
+                "description": "Create a Team Membership by Person ID or email address. Returns TeamMembership object. Optionally make membership a moderator.",
+                "tags": [
+                    "teamMemberships"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "teamId"
+                            ],
+                            "properties": {
+                                "teamId": {
+                                    "description": "Team ID.",
+                                    "type": "string"
+                                },
+                                "personId": {
+                                    "description": "Person ID.",
+                                    "type": "string"
+                                },
+                                "personEmail": {
+                                    "description": "Person Email.",
+                                    "type": "string",
+                                    "format": "email"
+                                },
+                                "isModerator": {
+                                    "description": "Team Membership is a moderator.",
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/TeamMembership"
+                    }
+                }
+            }
+        },
+        "/team/memberships/{membershipId}": {
+            "get": {
+                "operationId": "getTeamMembership",
+                "summary": "Get Team Memberships.",
+                "description": "Get Team Memberships. Returns TeamMembership object.",
+                "tags": [
+                    "teamMemberships"
+                ],
+                "parameters": [
+                    {
+                        "name": "membershipId",
+                        "in": "path",
+                        "description": "Membership ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/TeamMembership"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "updateTeamMembership",
+                "summary": "Update a Team Membership.",
+                "description": "UUpdate a Team Membership by ID. Returns TeamMembership object.",
+                "tags": [
+                    "teamMemberships"
+                ],
+                "parameters": [
+                    {
+                        "name": "membershipId",
+                        "in": "path",
+                        "description": "Membership ID.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "isModerator"
+                            ],
+                            "properties": {
+                                "isModerator": {
+                                    "description": "Team Membership is a moderator.",
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/TeamMembership"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteTeamMembership",
+                "summary": "Delete a Team Membership.",
+                "description": "Delete a Team Membership by ID.",
+                "tags": [
+                    "teamMemberships"
+                ],
+                "parameters": [
+                    {
+                        "name": "membershipId",
+                        "in": "path",
+                        "description": "Membership ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful response."
+                    }
+                }
+            }
+        },
+        "/webhooks/": {
+            "get": {
+                "operationId": "getWebhooks",
+                "summary": "Get Webhooks.",
+                "description": "Get Webhooks. Returns an array of Webhook objects.",
+                "tags": [
+                    "webhooks"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/Max"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Webhooks"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "createWebhook",
+                "summary": "Create a Webhook.",
+                "description": "Create a webhook. Returns a Webhook object.",
+                "tags": [
+                    "webhooks"
+                ],
+                "parameters": [
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "targetUrl",
+                                "resource",
+                                "event"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "description": "Webhook name.",
+                                    "type": "string"
+                                },
+                                "targetUrl": {
+                                    "description": "Webhook target URL.",
+                                    "type": "string",
+                                    "format": "url"
+                                },
+                                "resource": {
+                                    "description": "Webhook resource.",
+                                    "type": "string"
+                                },
+                                "event": {
+                                    "description": "Webhook event.",
+                                    "type": "string"
+                                },
+                                "filter": {
+                                    "description": "Webhook filter.",
+                                    "type": "string"
+                                },
+                                "secret": {
+                                    "description": "Webhook secret.",
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Webhook"
+                    }
+                }
+            }
+        },
+        "/webhooks/{webhookId}": {
+            "get": {
+                "operationId": "getWebhook",
+                "summary": "Get Webhook.",
+                "description": "Get Webhook by ID. Returns a Webhook object.",
+                "tags": [
+                    "webhooks"
+                ],
+                "parameters": [
+                    {
+                        "name": "webhookId",
+                        "in": "path",
+                        "description": "Webhook ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Webhook"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "updateWebhook",
+                "summary": "Update a Webhook.",
+                "description": "Update a webhook by ID. Returns a Webhook object.",
+                "tags": [
+                    "webhooks"
+                ],
+                "parameters": [
+                    {
+                        "name": "webhookId",
+                        "in": "path",
+                        "description": "Webhook ID.",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "required": [
+                                "name",
+                                "targetUrl"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "description": "Webhook name.",
+                                    "type": "string"
+                                },
+                                "targetUrl": {
+                                    "description": "Webhook target URL.",
+                                    "type": "string",
+                                    "format": "url"
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Webhook"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "deleteWebhook",
+                "summary": "Delete a Webhook.",
+                "description": "Delete a Webhook by ID.",
+                "tags": [
+                    "webhooks"
+                ],
+                "parameters": [
+                    {
+                        "name": "webhookId",
+                        "in": "path",
+                        "description": "Webhook ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Successful response."
+                    }
+                }
+            }
+        },
+        "/organizations/": {
+            "get": {
+                "operationId": "getOrganizations",
+                "summary": "Get Organizations for authenticated User. Returns array of Organization objects.",
+                "description": "Get Organizations for authenticated User. Returns array of Organization objects.",
+                "tags": [
+                    "organizations"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/Max"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Organizations"
+                    }
+                }
+            }
+        },
+        "/organizations/{orgId}": {
+            "get": {
+                "operationId": "getOrganization",
+                "summary": "Get Organization.",
+                "description": "Get Organization by ID. Returns Organization object.",
+                "tags": [
+                    "organizations"
+                ],
+                "parameters": [
+                    {
+                        "name": "orgId",
+                        "in": "path",
+                        "description": "Organization ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Organization"
+                    }
+                }
+            }
+        },
+        "/licenses/": {
+            "get": {
+                "operationId": "getLicenses",
+                "summary": "Get Licenses.",
+                "description": "Get Licenses. Returns array of License objects.",
+                "tags": [
+                    "licenses"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/Max"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Licenses"
+                    }
+                }
+            }
+        },
+        "/licenses/{licenseId}": {
+            "get": {
+                "operationId": "getLicense",
+                "summary": "Get License.",
+                "description": "Get License by ID. Returns License object.",
+                "tags": [
+                    "licenses"
+                ],
+                "parameters": [
+                    {
+                        "name": "licenseId",
+                        "in": "path",
+                        "description": "License ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/License"
+                    }
+                }
+            }
+        },
+        "/roles/": {
+            "get": {
+                "operationId": "getRoles",
+                "summary": "Get Roles.",
+                "description": "Get Roles. Returns an array of Role objects.",
+                "tags": [
+                    "roles"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/Max"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Roles"
+                    }
+                }
+            }
+        },
+        "/roles/{roleId}": {
+            "get": {
+                "operationId": "getRole",
+                "summary": "Get Role.",
+                "description": "Get Role by ID. Returns Role object.",
+                "tags": [
+                    "roles"
+                ],
+                "parameters": [
+                    {
+                        "name": "roleId",
+                        "in": "path",
+                        "description": "Role ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Role"
+                    }
+                }
+            }
+        },
+        "/contents/{contentId}": {
+            "get": {
+                "operationId": "getContent",
+                "summary": "Get File contents.",
+                "description": "Get File contents by ID. Returns binary of file.",
+                "tags": [
+                    "contents"
+                ],
+                "parameters": [
+                    {
+                        "name": "contentId",
+                        "in": "path",
+                        "description": "Content ID.",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/responses/Contents"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Person": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Person ID."
+                },
+                "emails": {
+                    "type": "array",
+                    "description": "Person email array.",
+                    "items": {
+                        "type": "string",
+                        "format": "email",
+                        "description": "Person email."
+                    }
+                },
+                "displayName": {
+                    "type": "string",
+                    "description": "Person display name."
+                },
+                "nickName": {
+                    "type": "string",
+                    "description": "Person nickname."
+                },
+                "firstName": {
+                    "type": "string",
+                    "description": "Person first name."
+                },
+                "lastName": {
+                    "type": "string",
+                    "description": "Person last name."
+                },
+                "avatar": {
+                    "type": "string",
+                    "format": "url",
+                    "description": "Person avatar URL."
+                },
+                "orgId": {
+                    "type": "string",
+                    "description": "Person organization ID."
+                },
+                "roles": {
+                    "type": "array",
+                    "description": "Person roles.",
+                    "items": {
+                        "type": "string",
+                        "description": "Role ID."
+                    }
+                },
+                "licenses": {
+                    "type": "array",
+                    "description": "Person licenses.",
+                    "items": {
+                        "type": "string",
+                        "description": "License ID."
+                    }
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Person creation date/time."
+                },
+                "timeZone": {
+                    "type": "string",
+                    "description": "Person time zone."
+                },
+                "lastActivity": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Person last active date/time."
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Person presence status (active or inactive)."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "Person type (person or bot)."
+                }
+            }
+        },
+        "Room": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Room ID."
+                },
+                "title": {
+                    "type": "string",
+                    "description": "Room title."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "Room type (group or direct)."
+                },
+                "isLocked": {
+                    "type": "boolean",
+                    "description": "Room is moderated."
+                },
+                "teamId": {
+                    "type": "string",
+                    "description": "Room Team ID."
+                },
+                "creatorId": {
+                    "type": "string",
+                    "description": "Room creator Person ID."
+                },
+                "lastActivity": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Room last activity date/time."
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Room creation date/time."
+                }
+            }
+        },
+        "Membership": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Membership ID."
+                },
+                "roomId": {
+                    "type": "string",
+                    "description": "Room ID."
+                },
+                "personId": {
+                    "type": "string",
+                    "description": "Person ID."
+                },
+                "personEmail": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Person email."
+                },
+                "personDisplayName": {
+                    "type": "string",
+                    "description": "Person display name."
+                },
+                "isModerator": {
+                    "type": "boolean",
+                    "description": "Membership is moderator."
+                },
+                "isMonitor": {
+                    "type": "boolean",
+                    "description": "Membership is monitor."
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Membership creation date/time."
+                }
+            }
+        },
+        "Message": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Message ID."
+                },
+                "roomId": {
+                    "type": "string",
+                    "description": "Room ID."
+                },
+                "roomType": {
+                    "type": "string",
+                    "description": "Room type (group or direct)."
+                },
+                "toPersonId": {
+                    "type": "string",
+                    "description": "Person ID (for type=direct)."
+                },
+                "toPersonEmail": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Person email (for type=direct)."
+                },
+                "text": {
+                    "type": "string",
+                    "description": "Message in plain text format."
+                },
+                "markdown": {
+                    "type": "string",
+                    "description": "Message in markdown format."
+                },
+                "html": {
+                    "type": "string",
+                    "description": "Message in html format."
+                },
+                "files": {
+                    "type": "array",
+                    "description": "File URL array.",
+                    "items": {
+                        "type": "string",
+                        "format": "url",
+                        "description": "File URL."
+                    }
+                },
+                "personId": {
+                    "type": "string",
+                    "description": "Person ID."
+                },
+                "personEmail": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Person Email."
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Message creation date/time."
+                },
+                "mentionedPeople": {
+                    "type": "array",
+                    "description": "Person ID array.",
+                    "items": {
+                        "type": "string",
+                        "description": "Person ID."
+                    }
+                }
+            }
+        },
+        "Team": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Team ID."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Team Name."
+                },
+                "creatorId": {
+                    "type": "string",
+                    "description": "Team creator ID."
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Team creation date/time."
+                }
+            }
+        },
+        "TeamMembership": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Team Membership ID."
+                },
+                "teamId": {
+                    "type": "string",
+                    "description": "Team ID."
+                },
+                "personId": {
+                    "type": "string",
+                    "description": "Person ID."
+                },
+                "personEmail": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "Person email."
+                },
+                "personDisplayName": {
+                    "type": "string",
+                    "description": "Person display name."
+                },
+                "isModerator": {
+                    "type": "boolean",
+                    "description": "Team Membership is moderator."
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Team Membership creation date/time."
+                }
+            }
+        },
+        "Webhook": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Webhook ID."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Webhook name."
+                },
+                "targetUrl": {
+                    "type": "string",
+                    "format": "url",
+                    "description": "Webhook target URL."
+                },
+                "resource": {
+                    "type": "string",
+                    "description": "Webhook resource.",
+                    "pattern": "(all|messages|memberships|rooms)"
+                },
+                "event": {
+                    "type": "string",
+                    "description": "Webhook event.",
+                    "pattern": "(all|created|updated|deleted)"
+                },
+                "orgId": {
+                    "type": "string",
+                    "description": "Webhook organization ID."
+                },
+                "createdBy": {
+                    "type": "string",
+                    "description": "Webhook created by Person ID."
+                },
+                "appId": {
+                    "type": "string",
+                    "description": "Webhook application ID."
+                },
+                "ownedBy": {
+                    "type": "string",
+                    "description": "Webhook owner Person ID."
+                },
+                "filter": {
+                    "type": "string",
+                    "description": "Webhook filter."
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Webhook status."
+                },
+                "secret": {
+                    "type": "string",
+                    "description": "Webhook secret."
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Webhook creation date/time."
+                }
+            }
+        },
+        "Organization": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Organization ID."
+                },
+                "displayName": {
+                    "type": "string",
+                    "description": "Organization Display Name."
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Organization creation date/time."
+                }
+            }
+        },
+        "License": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "License ID."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "License Display Name."
+                },
+                "totalUnits": {
+                    "type": "string",
+                    "description": "License quantity total."
+                },
+                "consumedUnits": {
+                    "type": "string",
+                    "description": "License quantity consumed."
+                }
+            }
+        },
+        "Role": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "Role ID."
+                },
+                "name": {
+                    "type": "string",
+                    "description": "Role Display Name."
+                }
+            }
+        }
+    },
+    "responses": {
+        "Person": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/Person"
+            }
+        },
+        "People": {
+            "description": "Successful response.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/Person"
+                        }
+                    }
+                }
+            }
+        },
+        "Room": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/Room"
+            }
+        },
+        "Rooms": {
+            "description": "Successful response.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/Room"
+                        }
+                    }
+                }
+            }
+        },
+        "Membership": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/Membership"
+            }
+        },
+        "Memberships": {
+            "description": "Successful response.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/Membership"
+                        }
+                    }
+                }
+            }
+        },
+        "Message": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/Message"
+            }
+        },
+        "Messages": {
+            "description": "Successful response.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/Message"
+                        }
+                    }
+                }
+            }
+        },
+        "Team": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/Team"
+            }
+        },
+        "Teams": {
+            "description": "Successful response.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/Team"
+                        }
+                    }
+                }
+            }
+        },
+        "TeamMembership": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/TeamMembership"
+            }
+        },
+        "TeamMemberships": {
+            "description": "Successful response.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/TeamMembership"
+                        }
+                    }
+                }
+            }
+        },
+        "Webhook": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/Webhook"
+            }
+        },
+        "Webhooks": {
+            "description": "Successful response.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/Webhook"
+                        }
+                    }
+                }
+            }
+        },
+        "Organization": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/Organization"
+            }
+        },
+        "Organizations": {
+            "description": "Successful response.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/Organization"
+                        }
+                    }
+                }
+            }
+        },
+        "License": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/License"
+            }
+        },
+        "Licenses": {
+            "description": "Successful response.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/License"
+                        }
+                    }
+                }
+            }
+        },
+        "Role": {
+            "description": "Successful response.",
+            "schema": {
+                "$ref": "#/definitions/Role"
+            }
+        },
+        "Roles": {
+            "description": "Successful response.",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/Role"
+                        }
+                    }
+                }
+            }
+        },
+        "Contents": {
+            "description": "Successful response."
+        }
+    },
+    "parameters": {
+        "Max": {
+            "name": "max",
+            "in": "query",
+            "description": "Limit the maximum number results.",
+            "required": false,
+            "type": "integer",
+            "pattern": "{[0-9]+:[0-9]+}"
+        }
+    }
+}
