@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-spark",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Node-RED Nodes to integrate with the Cisco Webex Teams API",
   "dependencies": {
     "body-parser": "1.15.2",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cumberlandgroup/node-red-contrib-spark"
+    "url": "git+https://github.com/ecoen66/node-red-contrib-spark"
   },
   "license": "MIT",
   "keywords": [

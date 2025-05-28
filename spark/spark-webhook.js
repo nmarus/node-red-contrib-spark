@@ -30,6 +30,7 @@ module.exports = function(RED) {
     node.name = n.name || 'webhhook';
     node.resource = n.resource;
     node.event = n.event;
+    node.filter = n.filter;
     node.host = n.host;
 
     node.basename = 'node_red_contrib_spark_' + node.id.replace(/\./g, '');
@@ -151,12 +152,24 @@ module.exports = function(RED) {
         _webhookReq.auth = { bearer: node.profileConfig.credentials.token };
 
         // set body for request object
-        _webhookReq.body = {
-          name: 'NODE-RED:' + node.id,
-          targetUrl: node.webhookTarget,
-          resource: node.resource,
-          event: 'all'
-        };
+        if (node.filter == "") {
+          _webhookReq.body = {
+            name: 'NODE-RED:' + node.id,
+            targetUrl: node.webhookTarget,
+            resource: node.resource,
+            event: node.event
+          };
+        }
+
+        else {
+          _webhookReq.body = {
+            name: 'NODE-RED:' + node.id,
+            targetUrl: node.webhookTarget,
+            resource: node.resource,
+            event: node.event,
+            filter: node.filter
+          };
+        }
 
         // send request to add a webhook
         request.post(_webhookReq, function(err, res) {

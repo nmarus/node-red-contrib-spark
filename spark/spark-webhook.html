@@ -27,6 +27,14 @@
     </div>
   </div>
 
+  <div class="form-row" id="node-input-filter-row">
+    <label for="node-input-filter"><i class="icon-tag"></i> Filter</label>
+    <input type="text" id="node-input-filter">
+    <div class="form-tips" id="node-input-filter" style="margin-top: 10px;">
+      <div>Enter the filter for this Webex Teams Webhook Event.</div>
+    </div>
+  </div>
+
   <div class="form-row">
     <label for="node-input-host"><i class="icon-globe"></i> Host</label>
     <input type="text" id="node-input-host" placeholder="http://myhost.com:3000">
@@ -88,6 +96,10 @@
       event: {
         value: '',
         required: true
+      },
+      filter: {
+        value: '',
+        required: false
       },
       host: {
         value: '',

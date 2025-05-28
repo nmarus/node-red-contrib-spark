@@ -176,6 +176,7 @@ The Webex Teams Webhook Node is triggered when a resource event is matched. When
 * **Profile** - The Webex Teams credential profile to use with this Node.
 * **Resource** - The Webex Teams resource to bind a Webhook to.
 * **Event** - The specific event of the resource selected.
+* **Filter** - Optional filter for the event selected (roomId=Y2lz54&personEmail=eurl@webex.bot).
 * **Host** - The base URL that is used to build the Webhook in the Webex Teams API. This should be reachable from the internet and follow the format of `http(s)://domain.tld:<port>`. The Webhook Node will dynamically publish web routes under this URL as `/node_red_contrib_spark_<node-uuid>`. *Note that the Webhook is automatically created in the Webex Teams API after deploying and automatically removed if the Node is deleted and the flow re-deployed. If you have defined the httpNodeRoot setting in Node-Red, the webhook target URL will be created under that path. This should be mostly transparent as this node will create and remove webhooks from the Webex Teams API as the nodes are added and removed from the workspace. If you shutdown Node-Red with a webhook deployed on the workspace, this webhook will persist in the Webex Teams API and will need to be manually removed.*
 
 ## Parser Node
