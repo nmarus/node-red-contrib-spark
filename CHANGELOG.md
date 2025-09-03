@@ -1,3 +1,8 @@
+#### 2.1.1: Maintenance Release
+
+  - Changed Webhook to allow for filtering
+  - Changed Webhook to also register with the Event vs. "all"
+
 #### 2.1.0: Branding Update
 
   - Updated mentions of "Spark" to now refer to "Webex Teams"
